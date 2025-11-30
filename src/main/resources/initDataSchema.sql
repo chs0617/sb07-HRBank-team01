@@ -30,8 +30,8 @@ CREATE TABLE departments (
 CREATE TABLE files (
                        id          uuid            PRIMARY KEY,
                        created_at  timestamp       NOT NULL,
-                       name        varchar(100)    NOT NULL,
-                       type        varchar(100)    NOT NULL,
+                       file_name        varchar(100)    NOT NULL,
+                       file_type        varchar(100)    NOT NULL,
                        size        bigint          NOT NULL
 );
 
