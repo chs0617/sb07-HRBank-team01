@@ -11,9 +11,9 @@ import java.util.UUID;
 public interface DepartmentService {
 
     DepartmentResponseDto createDepartment(DepartmentCreateRequestDto request);
-    DepartmentResponseDto updateDepartment(UUID departmentId, DepartmentUpdateRequestDto request);
-    void deleteDepartment(UUID departmentId);
-    DepartmentResponseDto getDepartment(UUID departmentId);
+    DepartmentResponseDto updateDepartment(Long departmentId, DepartmentUpdateRequestDto request);
+    void deleteDepartment(Long departmentId);
+    DepartmentResponseDto getDepartment(Long departmentId);
     Slice<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto condition);
 
 }
