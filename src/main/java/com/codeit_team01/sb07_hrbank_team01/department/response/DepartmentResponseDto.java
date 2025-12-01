@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record DepartmentResponseDto(
-        UUID id,
+        Long id,
         String name,
         String description,
         Instant establishDate,
