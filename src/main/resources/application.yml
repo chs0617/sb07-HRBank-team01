@@ -3,9 +3,9 @@ spring:
     name: sb07_HRBank_team01
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
-    username: discodeit_user
-    password: discodeit1234
+    url: jdbc:postgresql://localhost:5432/hrbank
+    username: hrbank_user
+    password: hrbank1234
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,3 +20,10 @@ spring:
         default_batch_fetch_size: 100
 
   open-in-view: false
+
+HRBank:
+  storage:
+    type: local
+    local:
+      # path: Users/사용자이름/Desktop/HRBank/
+      root-path: "${user.home}/Desktop/HRBank/"

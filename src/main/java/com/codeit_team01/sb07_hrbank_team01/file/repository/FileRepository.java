@@ -1,9 +1,10 @@
 package com.codeit_team01.sb07_hrbank_team01.file.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.entity.File;
+import org.springframework.stereotype.Repository;
 
-import java.io.File;
-import java.util.UUID;
+@Repository
+public interface FileRepository extends JpaRepository<File, Long> {
 
-public interface FileRepository extends JpaRepository<File, UUID> {
 }
