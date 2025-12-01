@@ -41,7 +41,7 @@ CREATE TABLE employee_histories (
                                     type            varchar(30)     NOT NULL,   -- enum은 애플리케이션에서 관리
                                     memo            varchar(255),
                                     ip_address      varchar(255),
-                                    created_at      timestamp,
+                                    created_at      timestamp       NOT NULL,
                                     employee_id     uuid            NOT NULL
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE backups (
                          start_time      timestamp       NOT NULL,
                          end_time        timestamp       NOT NULL,
                          status          varchar(30)     NOT NULL,   -- '진행중','완료','실패','건너뜀'
-                         backup_file_id  uuid
+                         file_id         uuid            NOT NULL
 );
 
 -- 이력 상세
