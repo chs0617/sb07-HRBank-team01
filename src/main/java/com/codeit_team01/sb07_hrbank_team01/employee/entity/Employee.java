@@ -4,13 +4,17 @@ import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.File;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Getter
 @Entity
 @Table(name = "employees")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Employee extends BaseEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
@@ -39,19 +43,21 @@ public class Employee extends BaseEntity {
     @Column(name = "employee_no", nullable = false, unique = true, length = 50)
     private String employeeNo;
 
-    protected Employee() {}
-
-    public Employee(String name, String email,
+    @Builder
+    private Employee(String name, String email,
             String jobPosition, Department department,
             Instant hireDate, String employeeNo, File profile) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("이메일이 null이거나 empty면 안됩니다.");
+        }
         this.name = name;
-        this.email = email;
+        this.email = email.toLowerCase();
         this.jobPosition = jobPosition;
         this.department = department;
         this.hireDate = hireDate;
-        this.status = EmployeeStatus.ACTIVE;
         this.employeeNo = employeeNo;
         this.profile = profile;
+        this.status = EmployeeStatus.ACTIVE;
     }
 
     public void updateInfo(String name, String email,
