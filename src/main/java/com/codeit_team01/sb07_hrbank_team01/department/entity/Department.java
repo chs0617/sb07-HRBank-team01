@@ -1,8 +1,10 @@
 package com.codeit_team01.sb07_hrbank_team01.department.entity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
+import com.codeit_team01.sb07_hrbank_team01.empolyee.entity.Employee;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -27,6 +31,18 @@ public class Department extends BaseEntity {
 
     @Column(name = "establish_date", nullable = false)
     private Instant establishDate;
+
+
+    protected Department(String name, String description, Instant establishDate) {
+        this.name = name;
+        this.description = description;
+        this.establishDate = establishDate;
+    }
+
+    public static Department of(String name, String description, Instant establishDate) {
+        return new Department(name, description, establishDate);
+    }
+
 
 
     public void update(String newName, String newDescription, Instant newEstablishDate){
