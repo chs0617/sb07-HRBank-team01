@@ -6,7 +6,7 @@ CREATE TABLE employees (
                            id              uuid            PRIMARY KEY,
                            job_position    varchar(50)     NOT NULL,
                            created_at      timestamp       NOT NULL,
-                           updated_at      timestamp       NOT NULL,
+                           updated_at      timestamp,
                            name            varchar(50)     NOT NULL,
                            email           varchar(100)    NOT NULL UNIQUE,
                            department_id   uuid            NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE backups (
                          created_at      timestamp       NOT NULL,
                          worker          varchar(50)     NOT NULL,   -- 작업자 IP or 'system'
                          start_time      timestamp       NOT NULL,
-                         end_time        timestamp,
+                         end_time        timestamp       NOT NULL,
                          status          varchar(30)     NOT NULL,   -- '진행중','완료','실패','건너뜀'
                          backup_file_id  uuid
 );
@@ -62,7 +62,8 @@ CREATE TABLE history_details (
                                  property_name   varchar(100)    NOT NULL,
                                  before_value    text,
                                  after_value     text,
-                                 history_id      uuid            NOT NULL
+                                 history_id      uuid            NOT NULL,
+                                 created_at      timestamp       NOT NULL
 );
 
 -- ===== FK (필요 없으면 이 블록은 빼도 됨) =====
@@ -86,3 +87,4 @@ ALTER TABLE backups
 ALTER TABLE history_details
     ADD CONSTRAINT fk_history_details_history
         FOREIGN KEY (history_id) REFERENCES employee_histories(id);
+
