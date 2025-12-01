@@ -17,13 +17,12 @@ public class HistoryDetail extends BaseEntity {
     private String propertyName;
 
     // 변경 전
-    @Lob
-    @Column(name = "before_value")
+    @Column(name = "before_value", length = 255)
    private String beforeValue;
 
     // 변경 후
     @Lob
-    @Column(name = "after_value")
+    @Column(name = "after_value", length = 255)
     private String afterValue;
 
     // 생성 시간
@@ -31,5 +30,5 @@ public class HistoryDetail extends BaseEntity {
     // history_id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "history_id", nullable = false)
-    private History historyId;
+    private History history;
 }
