@@ -25,11 +25,11 @@ public class Department extends BaseEntity {
     @Column(name = "description", nullable = false, length = 200)
     private String description;
 
-    @Column(name = "establish_date", nullable = false, columnDefinition = "DATE")
-    private LocalDate establishDate;
+    @Column(name = "establish_date", nullable = false)
+    private Instant establishDate;
 
 
-    public void update(String newName, String newDescription, LocalDate newEstablishDate){
+    public void update(String newName, String newDescription, Instant newEstablishDate){
          if(newName != null && !newName.equals(this.name)){
              this.name = newName;
          }
