@@ -12,7 +12,7 @@ public class History extends BaseEntity {
 
     // 수정 유형
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(length = 30, nullable = false)
     private HistoryType type;
 
     // 선택적으로 화면에서 입력
