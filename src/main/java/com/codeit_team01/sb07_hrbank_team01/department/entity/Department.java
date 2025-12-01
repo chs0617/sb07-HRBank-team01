@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "departments")
 public class Department extends BaseEntity {
