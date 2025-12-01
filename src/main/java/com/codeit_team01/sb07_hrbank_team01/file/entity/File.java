@@ -19,12 +19,11 @@ import lombok.NoArgsConstructor;
 public class File extends BaseEntity {
 
     @Column(nullable = false)
-    private String fileName;
+    private String name;
 
     @Column(nullable = false)
-    private String fileType;
+    private String type;
 
     @Column(nullable = false)
     private Long size;
-
 }
