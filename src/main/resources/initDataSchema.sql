@@ -3,22 +3,22 @@
 
 -- 직원
 CREATE TABLE employees (
-                           id              uuid            PRIMARY KEY,
+                           id              bigint          PRIMARY KEY,
                            job_position    varchar(50)     NOT NULL,
                            created_at      timestamp       NOT NULL,
                            updated_at      timestamp,
                            name            varchar(50)     NOT NULL,
                            email           varchar(100)    NOT NULL UNIQUE,
-                           department_id   uuid            NOT NULL,
+                           department_id   bigint          NOT NULL,
                            hire_date       timestamp       NOT NULL,
                            status          varchar(30)     NOT NULL,
-                           profile_id      uuid,
+                           profile_id      bigint,
                            employee_no     varchar(50)     NOT NULL UNIQUE
 );
 
 -- 부서
 CREATE TABLE departments (
-                             id              uuid            PRIMARY KEY,
+                             id              bigint          PRIMARY KEY,
                              created_at      timestamp       NOT NULL,
                              updated_at      timestamp,
                              name            varchar(50)     NOT NULL UNIQUE,
@@ -28,7 +28,7 @@ CREATE TABLE departments (
 
 -- 파일
 CREATE TABLE files (
-                       id          uuid            PRIMARY KEY,
+                       id          bingint         PRIMARY KEY,
                        created_at  timestamp       NOT NULL,
                        name        varchar(100)    NOT NULL,
                        type        varchar(100)    NOT NULL,
@@ -37,32 +37,32 @@ CREATE TABLE files (
 
 -- 직원 수정 이력 헤더
 CREATE TABLE employee_histories (
-                                    id              uuid            PRIMARY KEY,
+                                    id              bingint         PRIMARY KEY,
                                     type            varchar(30)     NOT NULL,   -- enum은 애플리케이션에서 관리
                                     memo            varchar(255),
                                     ip_address      varchar(255),
                                     created_at      timestamp       NOT NULL,
-                                    employee_id     uuid            NOT NULL
+                                    employee_id     bigint          NOT NULL
 );
 
 -- 백업 이력
 CREATE TABLE backups (
-                         id              uuid            PRIMARY KEY,
+                         id              bigint          PRIMARY KEY,
                          created_at      timestamp       NOT NULL,
                          worker          varchar(50)     NOT NULL,   -- 작업자 IP or 'system'
                          start_time      timestamp       NOT NULL,
                          end_time        timestamp       NOT NULL,
                          status          varchar(30)     NOT NULL,   -- '진행중','완료','실패','건너뜀'
-                         file_id         uuid            NOT NULL
+                         file_id         bigint          NOT NULL
 );
 
 -- 이력 상세
 CREATE TABLE history_details (
-                                 id              uuid            PRIMARY KEY,
+                                 id              bigint          PRIMARY KEY,
                                  property_name   varchar(100)    NOT NULL,
-                                 before_value    text,
-                                 after_value     text,
-                                 history_id      uuid            NOT NULL,
+                                 before_value    varchar(255),
+                                 after_value     varchar(255),
+                                 history_id      bigint          NOT NULL,
                                  created_at      timestamp       NOT NULL
 );
 
