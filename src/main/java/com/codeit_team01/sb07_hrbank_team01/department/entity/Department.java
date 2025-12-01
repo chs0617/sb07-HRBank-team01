@@ -19,6 +19,7 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "departments")
 public class Department extends BaseEntity {
@@ -33,11 +34,6 @@ public class Department extends BaseEntity {
     private Instant establishDate;
 
 
-    protected Department(String name, String description, Instant establishDate) {
-        this.name = name;
-        this.description = description;
-        this.establishDate = establishDate;
-    }
 
     public static Department of(String name, String description, Instant establishDate) {
         return new Department(name, description, establishDate);
