@@ -1,7 +1,7 @@
 package com.codeit_team01.sb07_hrbank_team01.history.entity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
-import com.codeit_team01.sb07_hrbank_team01.empolyee.entity.Employee;
+import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +28,6 @@ public class History extends BaseEntity {
     // 직원 사번
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employeeId;
+    private Employee employee;
 
 }
