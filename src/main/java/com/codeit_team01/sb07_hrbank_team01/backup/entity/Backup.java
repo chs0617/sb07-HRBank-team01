@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "backups")
 public class Backup extends BaseEntity {
-  @Column(name = "worker", nullable = false)
+  @Column(name = "worker", nullable = false, length = 50)
   private String worker;
 
   @Column(name = "start_time", nullable = false)
@@ -29,7 +29,7 @@ public class Backup extends BaseEntity {
   @Column(name = "end_time", nullable = false)
   private Instant endTime;
 
-  @Column(name = "status", nullable = false)
+  @Column(name = "status", nullable = false, length = 30)
   @Enumerated(EnumType.STRING)
   private BackupStatus status;
 
