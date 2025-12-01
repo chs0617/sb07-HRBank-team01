@@ -10,7 +10,7 @@ CREATE TABLE employees (
                            name            varchar(50)     NOT NULL,
                            email           varchar(100)    NOT NULL UNIQUE,
                            department_id   uuid            NOT NULL,
-                           hire_date       date            NOT NULL,
+                           hire_date       timestamp       NOT NULL,
                            status          varchar(30)     NOT NULL,
                            profile_id      uuid,
                            employee_no     varchar(50)     NOT NULL UNIQUE
