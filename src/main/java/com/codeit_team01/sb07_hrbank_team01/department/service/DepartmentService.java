@@ -3,6 +3,7 @@ package com.codeit_team01.sb07_hrbank_team01.department.service;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentSearchRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentUpdateRequestDto;
+import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentPageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentResponseDto;
 import org.springframework.data.domain.Slice;
 
@@ -14,6 +15,6 @@ public interface DepartmentService {
     DepartmentResponseDto updateDepartment(Long departmentId, DepartmentUpdateRequestDto request);
     void deleteDepartment(Long departmentId);
     DepartmentResponseDto getDepartment(Long departmentId);
-    Slice<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto condition);
+    DepartmentPageResponseDto<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto condition);
 
 }
