@@ -1,6 +1,9 @@
 package com.codeit_team01.sb07_hrbank_team01.employee.dto.response;
 
+import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
+
 import java.time.Instant;
+import java.time.LocalDate;
 
 public record EmployeeResponseDto(
         Long id,
@@ -10,8 +13,8 @@ public record EmployeeResponseDto(
         Long departmentId,
         String departmentName,
         String position,
-        Instant hireDate,
-        String status,
+        LocalDate hireDate,
+        EmployeeStatus status,
         Long profileImageId
 ) {
 }
