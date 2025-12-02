@@ -2,6 +2,7 @@ package com.codeit_team01.sb07_hrbank_team01.department.entity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
 
+import com.codeit_team01.sb07_hrbank_team01.base.BaseUpdateEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "departments")
-public class Department extends BaseEntity {
+public class Department extends BaseUpdateEntity {
 
     @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
