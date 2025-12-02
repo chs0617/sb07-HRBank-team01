@@ -2,10 +2,9 @@ package com.codeit_team01.sb07_hrbank_team01.department.response;
 
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 
-import java.time.Instant;
+
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.UUID;
+
 
 public record DepartmentResponseDto(
         Long id,
