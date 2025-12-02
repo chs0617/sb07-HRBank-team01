@@ -1,6 +1,6 @@
-package com.codeit_team01.sb07_hrbank_team01.exception;
+package com.codeit_team01.sb07_hrbank_team01.common.exception;
 
-import com.codeit_team01.sb07_hrbank_team01.exception.dto.ErrorResponseDto;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.dto.ErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

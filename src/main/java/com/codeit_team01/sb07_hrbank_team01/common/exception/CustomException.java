@@ -1,7 +1,6 @@
-package com.codeit_team01.sb07_hrbank_team01.exception;
+package com.codeit_team01.sb07_hrbank_team01.common.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public class CustomException extends RuntimeException {

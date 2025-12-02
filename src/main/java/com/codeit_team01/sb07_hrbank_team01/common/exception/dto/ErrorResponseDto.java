@@ -1,7 +1,6 @@
-package com.codeit_team01.sb07_hrbank_team01.exception.dto;
+package com.codeit_team01.sb07_hrbank_team01.common.exception.dto;
 
-import com.codeit_team01.sb07_hrbank_team01.exception.CustomException;
-import com.codeit_team01.sb07_hrbank_team01.exception.ErrorCode;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.CustomException;
 import lombok.Builder;
 import org.springframework.http.HttpStatus;
 
