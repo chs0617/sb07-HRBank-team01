@@ -8,12 +8,4 @@ public record FileResponseDto(
         String type,
         Long size
 ) {
-    public static FileResponseDto from(File file) {
-        return new FileResponseDto(
-                file.getId(),
-                file.getName(),
-                file.getType(),
-                file.getSize()
-        );
-    }
 }
