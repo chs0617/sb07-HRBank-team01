@@ -1,6 +1,5 @@
 package com.codeit_team01.sb07_hrbank_team01.department.entity;
 
-import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseUpdateEntity;
 import jakarta.persistence.Column;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 
