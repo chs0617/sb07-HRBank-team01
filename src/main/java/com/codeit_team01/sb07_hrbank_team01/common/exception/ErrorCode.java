@@ -1,4 +1,4 @@
-package com.codeit_team01.sb07_hrbank_team01.exception;
+package com.codeit_team01.sb07_hrbank_team01.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
