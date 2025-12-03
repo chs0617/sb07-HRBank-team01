@@ -126,9 +126,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
-        if(employee.getStatus() == EmployeeStatus.RESIGNED) {
-            throw new IllegalArgumentException("퇴사는 삭제가 아닌 상태 변경으로 처리해야 합니다.");
-        }
         employeeRepository.delete(employee);
     }
 
