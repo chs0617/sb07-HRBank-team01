@@ -5,7 +5,7 @@ import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface MetaFileMapper {
+public interface FileMapper {
 
     FileResponseDto toDto(MetaFile metaFile);
 }

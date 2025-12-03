@@ -6,14 +6,13 @@ import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeCreateR
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeUpdateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
-import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 import com.codeit_team01.sb07_hrbank_team01.employee.mapper.EmployeeMapper;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
-import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
-import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
+import com.codeit_team01.sb07_hrbank_team01.file.repository.FileRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
     private final DepartmentRepository departmentRepository;
-    private final MetaFileRepository metaFileRepository;
-    private final MetaFileService fileService;
+    private final FileRepository metaFileRepository;
+    private final FileService fileService;
 
     @Override
     @Transactional

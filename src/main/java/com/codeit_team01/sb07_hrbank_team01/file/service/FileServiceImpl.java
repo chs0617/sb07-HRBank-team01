@@ -5,8 +5,8 @@ import com.codeit_team01.sb07_hrbank_team01.common.exception.ErrorCode;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
-import com.codeit_team01.sb07_hrbank_team01.file.mapper.MetaFileMapper;
-import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.mapper.FileMapper;
+import com.codeit_team01.sb07_hrbank_team01.file.repository.FileRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.storage.FileLocalStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class MetaFileServiceImpl implements MetaFileService {
+public class FileServiceImpl implements FileService {
 
-    private final MetaFileRepository metaFileRepository;
+    private final FileRepository metaFileRepository;
     private final FileLocalStorage fileLocalStorage;
-    private final MetaFileMapper metaFileMapper;
+    private final FileMapper metaFileMapper;
 
     @Override
     @Transactional
