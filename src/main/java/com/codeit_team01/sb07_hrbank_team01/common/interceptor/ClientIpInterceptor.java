@@ -3,9 +3,11 @@ package com.codeit_team01.sb07_hrbank_team01.common.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+@Slf4j
 @Component
 public class ClientIpInterceptor implements HandlerInterceptor {
 
@@ -13,7 +15,7 @@ public class ClientIpInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request,
       HttpServletResponse response, Object handler) throws Exception {
     String clientIp = extractClientIp(request);
-    System.out.println("Client IP: " + clientIp);
+    log.info("IP CATCH -> Client IP: {}", clientIp);
 
     // 컨트롤러에서 사용할 수 있도록 request attribute에 저장
     request.setAttribute("clientIp", clientIp);
