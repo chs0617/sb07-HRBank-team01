@@ -8,7 +8,7 @@ import java.util.List;
 public interface HistoryService {
 
     // 직원 생성 이력 등록
-    void createHistory(Employee employee, String memo, String ipAddress);
+    void createRegistrationHistory(Employee employee, String memo, String ipAddress);
 
     // 직원 수정 이력 등록 : 퇴사 포함
     void createUpdateHistory(Employee beforeEmployee, Employee afterEmployee, String memo, String ipAddress);
