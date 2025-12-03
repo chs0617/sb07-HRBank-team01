@@ -6,6 +6,7 @@ import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeCreateR
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeUpdateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
+import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 import com.codeit_team01.sb07_hrbank_team01.employee.mapper.EmployeeMapper;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
@@ -121,12 +122,20 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void deleteEmployee(Long id) {
-
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
+        if(employee.getStatus() == EmployeeStatus.RESIGNED) {
+            throw new IllegalArgumentException("퇴사는 삭제가 아닌 상태 변경으로 처리해야 합니다.");
+        }
+        employeeRepository.delete(employee);
     }
 
     @Override
     public EmployeeResponseDto getEmployee(Long id) {
-        return null;
+        Employee employee = employeeRepository.findById(Objects.requireNonNull(id))
+                .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
+        return employeeMapper.toDto(employee);
     }
 }
