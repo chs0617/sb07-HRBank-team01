@@ -57,9 +57,9 @@ public class DepartmentController {
            @PathVariable
            Long departmentId){
 
-           return ResponseEntity
-               .status(HttpStatus.OK)
-               .build();
+      departmentService.deleteDepartment(departmentId);
+
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
    }
 
