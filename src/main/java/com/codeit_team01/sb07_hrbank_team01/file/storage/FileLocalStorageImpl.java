@@ -67,7 +67,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
 
         try {
             if (!Files.exists(path)) {
-                throw new CustomException(ErrorCode.FILE_NOT_FOUND, "id + 번 파일이 존재하지 않습니다.");
+                throw new CustomException(ErrorCode.FILE_NOT_FOUND, id + "번 파일이 존재하지 않습니다.");
             }
             return new FileInputStream(path.toFile());
         } catch (IOException e) {
