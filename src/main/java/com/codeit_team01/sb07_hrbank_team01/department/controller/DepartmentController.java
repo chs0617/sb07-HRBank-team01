@@ -53,11 +53,13 @@ public class DepartmentController {
     }
 
    @DeleteMapping(value = "/{departmentId}")
-   public void deleteDepartment(
+   public ResponseEntity<Void> deleteDepartment(
            @PathVariable
            Long departmentId){
 
-         departmentService.deleteDepartment(departmentId);
+           return ResponseEntity
+               .status(HttpStatus.OK)
+               .build();
 
    }
 
