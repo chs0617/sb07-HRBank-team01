@@ -5,7 +5,7 @@ import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import java.time.Instant;
 
 // 직원 정보 수정 이력 (목록 조회용)
-public record ChangeLogDto(
+public record HistoryChangeLogDto(
         Long id,
         String type,
         String employeeNumber,
@@ -13,8 +13,8 @@ public record ChangeLogDto(
         String ipAddress,
         Instant at
 ) {
-    public static ChangeLogDto from(History history) {
-        return new ChangeLogDto(
+    public static HistoryChangeLogDto from(History history) {
+        return new HistoryChangeLogDto(
                 history.getId(),
                 history.getType().name(),
                 history.getEmployee().getEmployeeNo(),
