@@ -94,13 +94,4 @@ public class FileLocalStorageImpl implements FileLocalStorage {
                 .headers(headers)
                 .body(resource);
     }
-    @Override
-    public Writer getWriter(String filePath) throws IOException {
-        File file = new File(filePath);
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            parent.mkdirs();
-        }
-        return new FileWriter(file);
-    }
 }

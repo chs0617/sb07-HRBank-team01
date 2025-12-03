@@ -16,5 +16,4 @@ public interface FileLocalStorage {
 
     ResponseEntity<Resource> download(FileResponseDto fileResponseDto);
 
-    Writer getWriter(String filePath) throws IOException;
 }
