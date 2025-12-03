@@ -13,7 +13,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "files")
-public class File extends BaseEntity {
+public class MetaFile extends BaseEntity {
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;

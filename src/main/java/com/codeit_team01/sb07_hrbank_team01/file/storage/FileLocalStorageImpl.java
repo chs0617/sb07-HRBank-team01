@@ -47,13 +47,13 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         }
     }
 
-    private Path reslovePath(Long id) {
+    private Path resolvePath(Long id) {
         return this.rootPath.resolve(id.toString());
     }
 
     @Override
     public void put(Long id, byte[] bytes) {
-        Path path = reslovePath(id);
+        Path path = resolvePath(id);
 
         try {
             Files.write(path, bytes);
@@ -62,10 +62,8 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         }
     }
 
-
-
     public InputStream get(Long id) {
-        Path path = reslovePath(id);
+        Path path = resolvePath(id);
 
         try {
             if (!Files.exists(path)) {
@@ -81,7 +79,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         InputStream fileInputStream = get(fileResponseDto.id());
         InputStreamResource resource = new InputStreamResource(fileInputStream);
         /* 테스트용
-        File file = reslovePath(fileResponseDto.id()).toFile();
+        File file = resolvePath(fileResponseDto.id()).toFile();
         long realSize = file.length();
         */
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment")

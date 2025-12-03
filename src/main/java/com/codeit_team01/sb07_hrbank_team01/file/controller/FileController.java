@@ -1,7 +1,7 @@
 package com.codeit_team01.sb07_hrbank_team01.file.controller;
 
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
-import com.codeit_team01.sb07_hrbank_team01.file.service.FileService;
+import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
 import com.codeit_team01.sb07_hrbank_team01.file.storage.FileLocalStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class FileController {
 
-    private final FileService fileService;
+    private final MetaFileService fileService;
     private final FileLocalStorage fileLocalStorage;
 
     @GetMapping("/{id}/download")
