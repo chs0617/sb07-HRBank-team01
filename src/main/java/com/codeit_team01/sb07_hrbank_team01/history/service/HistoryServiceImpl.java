@@ -17,24 +17,24 @@ public class HistoryServiceImpl implements HistoryService{
 
     // 직원 생성 이력 등록
     @Override
-    public void createRegistrationHistory(Employee employee, String memo, String ipAddress) {
+    public void createHistory(Employee employee, String memo, String ipAddress) {
         History history = History.createHistory(HistoryType.EMPLOYEE_CREATE, employee, memo, ipAddress);
 
         // 전체 필드 추가
-        history.addDetail("입사일", "", employee.getHireDate().toString());
-        history.addDetail("이름", "", employee.getName());
-        history.addDetail("직함", "", employee.getJobPosition());
-        history.addDetail("부서명", "", employee.getDepartment().toString());
-        history.addDetail("이메일", "", employee.getEmail());
-        history.addDetail("사번", "", employee.getEmployeeNo());
-        history.addDetail("상태", "", employee.getStatus().toString());
+        history.addDetail("입사일", null, employee.getHireDate().toString());
+        history.addDetail("이름", null, employee.getName());
+        history.addDetail("직함", null, employee.getJobPosition());
+        history.addDetail("부서명", null, employee.getDepartment().toString());
+        history.addDetail("이메일", null, employee.getEmail());
+        history.addDetail("사번", null, employee.getEmployeeNo());
+        history.addDetail("상태", null, employee.getStatus().toString());
 
         historyRepository.save(history);
     }
 
     // 직원 수정 이력 등록
     @Override
-    public void createUpdateHistory(Employee beforeEmployee, Employee afterEmployee, String memo, String ipAddress) {
+    public void updateHistory(Employee beforeEmployee, Employee afterEmployee, String memo, String ipAddress) {
         History history = History.createHistory(HistoryType.EMPLOYEE_UPDATE, afterEmployee, memo, ipAddress);
 
         //입사일 수정
@@ -61,21 +61,22 @@ public class HistoryServiceImpl implements HistoryService{
         if(!Objects.equals(beforeEmployee.getStatus(), afterEmployee.getStatus())){
             history.addDetail("상태", beforeEmployee.getStatus().toString(), afterEmployee.getStatus().toString());
         }
+        historyRepository.save(history);
     }
 
     // 직원 삭제 이력 등록
     @Override
-    public void createDeleteHistory(Employee employee, String memo, String ipAddress) {
+    public void deleteHistory(Employee employee, String memo, String ipAddress) {
         History history = History.createHistory(HistoryType.EMPLOYEE_DELETE, employee, memo, ipAddress);
 
         // 전체 필드 추가
-        history.addDetail("입사일", employee.getHireDate().toString(), "");
-        history.addDetail("이름", employee.getName(), "");
-        history.addDetail("직함", employee.getJobPosition(), "");
-        history.addDetail("부서명", employee.getDepartment().toString(), "");
-        history.addDetail("이메일", employee.getEmail(), "");
-        history.addDetail("사번", employee.getEmployeeNo(), "");
-        history.addDetail("상태", employee.getStatus().toString(), "");
+        history.addDetail("입사일", employee.getHireDate().toString(), null);
+        history.addDetail("이름", employee.getName(), null);
+        history.addDetail("직함", employee.getJobPosition(), null);
+        history.addDetail("부서명", employee.getDepartment().toString(), null);
+        history.addDetail("이메일", employee.getEmail(), null);
+        history.addDetail("사번", employee.getEmployeeNo(), null);
+        history.addDetail("상태", employee.getStatus().toString(), null);
 
         historyRepository.save(history);
     }
