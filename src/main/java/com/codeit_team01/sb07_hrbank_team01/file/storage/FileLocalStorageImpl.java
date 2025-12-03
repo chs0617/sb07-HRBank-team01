@@ -1,5 +1,7 @@
 package com.codeit_team01.sb07_hrbank_team01.file.storage;
 
+import com.codeit_team01.sb07_hrbank_team01.common.exception.CustomException;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.ErrorCode;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +42,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
             try {
                 Files.createDirectories(this.rootPath);
             } catch (IOException e) {
-                // 알맞은 예외 설정 후 변경예정
-                throw new RuntimeException("디렉토리 생성 실패", e);
+                throw new CustomException(ErrorCode.DIRECTORY_CREATION_FAILED, e.getMessage());
             }
         }
     }
@@ -57,7 +58,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         try {
             Files.write(path, bytes);
         } catch (IOException e) {
-            throw new RuntimeException("파일 쓰기 실패", e);
+            throw new CustomException(ErrorCode.FILE_OPERATION_FAILED, "파일 저장에 실패했습니다.");
         }
     }
 
@@ -68,29 +69,29 @@ public class FileLocalStorageImpl implements FileLocalStorage {
 
         try {
             if (!Files.exists(path)) {
-                throw new RuntimeException("파일을 찾을 수 없음");
+                throw new CustomException(ErrorCode.FILE_NOT_FOUND, "파일을 찾을 수 없음");
             }
             return new FileInputStream(path.toFile());
         } catch (IOException e) {
-            throw new RuntimeException("파일 읽기 실패", e);
+            throw new CustomException(ErrorCode.FILE_OPERATION_FAILED, "파일 읽기에 실패했습니다.");
         }
     }
 
     public ResponseEntity<Resource> download(FileResponseDto fileResponseDto) {
         InputStream fileInputStream = get(fileResponseDto.id());
         InputStreamResource resource = new InputStreamResource(fileInputStream);
-        // 테스트용
+        /* 테스트용
         File file = reslovePath(fileResponseDto.id()).toFile();
         long realSize = file.length();
-        //
+        */
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                 .filename(fileResponseDto.name(), StandardCharsets.UTF_8)
                 .build();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(contentDisposition);
-        // headers.setContentLength(fileResponseDto.size());
+        headers.setContentLength(fileResponseDto.size());
         // 테스트용
-        headers.setContentLength(realSize);
+        // headers.setContentLength(realSize);
         headers.setContentType(MediaType.parseMediaType(fileResponseDto.type()));
 
         return ResponseEntity.ok()

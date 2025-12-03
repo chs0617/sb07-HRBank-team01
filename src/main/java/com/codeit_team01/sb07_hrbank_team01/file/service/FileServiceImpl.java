@@ -1,5 +1,7 @@
 package com.codeit_team01.sb07_hrbank_team01.file.service;
 
+import com.codeit_team01.sb07_hrbank_team01.common.exception.CustomException;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.ErrorCode;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.File;
@@ -35,7 +37,9 @@ public class FileServiceImpl implements FileService {
     @Transactional(readOnly = true)
     public FileResponseDto findById(long id) {
         File file = fileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("File not found!"));
+                .orElseThrow(() ->
+                        new CustomException(ErrorCode.FILE_NOT_FOUND,
+                        id + "번 파일을 찾을 수 없습니다."));
         return fileMapper.toDto(file);
     }
 
