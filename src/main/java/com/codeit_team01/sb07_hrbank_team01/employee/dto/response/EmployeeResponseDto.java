@@ -2,7 +2,6 @@ package com.codeit_team01.sb07_hrbank_team01.employee.dto.response;
 
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 public record EmployeeResponseDto(
