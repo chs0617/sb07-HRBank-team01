@@ -39,7 +39,7 @@ public class MetaFileServiceImpl implements MetaFileService {
         MetaFile metaFile = metaFileRepository.findById(id)
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.FILE_NOT_FOUND,
-                        id + "번 파일 존재하지 않습니다."));
+                        id + "번 파일이 존재하지 않습니다."));
         return metaFileMapper.toDto(metaFile);
     }
 

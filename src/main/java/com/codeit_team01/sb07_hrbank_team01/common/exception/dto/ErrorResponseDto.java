@@ -13,10 +13,6 @@ public record ErrorResponseDto(
         String message,
         String details
 ) {
-    private static String combine(String code, String message) {
-        return String.format("[%s] %s", code, message);
-    }
-
     public static ErrorResponseDto from(CustomException e) {
 
         String combinedMessage = String.format("[%s] %s",
