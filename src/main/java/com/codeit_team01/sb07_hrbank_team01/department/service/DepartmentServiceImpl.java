@@ -1,11 +1,12 @@
 package com.codeit_team01.sb07_hrbank_team01.department.service;
 
+import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
+import com.codeit_team01.sb07_hrbank_team01.common.mapper.PageResponseMapper;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.codeit_team01.sb07_hrbank_team01.department.repository.DepartmentRepository;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentSearchRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentUpdateRequestDto;
-import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentPageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+
 import java.util.NoSuchElementException;
-import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @Service
@@ -25,6 +26,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final PageResponseMapper pageResponseMapper;
 
     @Override
     @Transactional
@@ -84,7 +86,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public DepartmentPageResponseDto<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto req) {
+    public PageResponseDto<Department> searchDepartment(DepartmentSearchRequestDto req) {
         //처음부터 커서기준으로 정렬을 해야할때가 있다
 
 
@@ -136,14 +138,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         }
 
         //진짜 요구에맞게 10개 -10개면 size인데 실제 조회면 getNumberOfElements()
-        return new DepartmentPageResponseDto<>(
-                contents,
-                nextCursor,
-                nextIdAfter,
-                page.getNumberOfElements(),
-                page.getTotalElements(),
-                page.hasNext()
-        );
+
+        return  pageResponseMapper.toPageResponseDto(page, nextCursor, nextIdAfter);
     }
 
     // 혹시모를 데이트파싱 수정가능
