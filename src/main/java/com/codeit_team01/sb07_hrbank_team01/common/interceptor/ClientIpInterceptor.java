@@ -1,4 +1,4 @@
-package com.codeit_team01.sb07_hrbank_team01.interceptor;
+package com.codeit_team01.sb07_hrbank_team01.common.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

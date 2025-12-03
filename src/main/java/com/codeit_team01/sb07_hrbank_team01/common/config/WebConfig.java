@@ -1,6 +1,6 @@
-package com.codeit_team01.sb07_hrbank_team01.config;
+package com.codeit_team01.sb07_hrbank_team01.common.config;
 
-import com.codeit_team01.sb07_hrbank_team01.interceptor.ClientIpInterceptor;
+import com.codeit_team01.sb07_hrbank_team01.common.interceptor.ClientIpInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
