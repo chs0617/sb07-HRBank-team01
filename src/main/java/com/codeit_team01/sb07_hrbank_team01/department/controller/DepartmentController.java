@@ -8,13 +8,18 @@ import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentSearchR
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentUpdateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.department.service.DepartmentService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/departments")
+@Validated
 public class DepartmentController {
 
     private DepartmentService departmentService;
@@ -22,43 +27,48 @@ public class DepartmentController {
 
 
     @PostMapping
-    public ApiResponseDto<DepartmentResponseDto> createDepartment(DepartmentCreateRequestDto request){
+    public DepartmentResponseDto createDepartment(
+            @RequestBody @Valid DepartmentCreateRequestDto request){
 
-        DepartmentResponseDto department = departmentService.createDepartment(request);
-
-        return ApiResponseDto.success(department);
+        return departmentService.createDepartment(request);
     }
 
     @GetMapping(value = "/{departmentId}")
-    public ApiResponseDto<DepartmentResponseDto> getDepartment(@PathVariable Long departmentId){
+    public DepartmentResponseDto getDepartment(
+            @PathVariable
+            @NotNull(message = "부서 ID는 필수입니다.")
+            @Positive(message = "부서 ID는 1 이상이어야 합니다.") Long departmentId){
 
-        DepartmentResponseDto department = departmentService.getDepartment(departmentId);
-
-        return ApiResponseDto.success(department);
+        return departmentService.getDepartment(departmentId);
 
     }
 
     @PatchMapping(value = "/{departmentId}")
-    public ApiResponseDto<DepartmentResponseDto> updateDepartment(@PathVariable Long departmentId, DepartmentUpdateRequestDto request){
+    public DepartmentResponseDto updateDepartment(
+            @PathVariable
+            @NotNull(message = "부서 ID는 필수입니다.")
+            @Positive(message = "부서 ID는 1 이상이어야 합니다.") Long departmentId,
 
-        DepartmentResponseDto department = departmentService.updateDepartment(departmentId, request);
+            @RequestBody @Valid  DepartmentUpdateRequestDto request){
 
-        return ApiResponseDto.success(department);
+        return departmentService.updateDepartment(departmentId, request);
     }
 
    @DeleteMapping(value = "/{departmentId}")
-   public ApiResponseDto<Void> deleteDepartment(@PathVariable Long departmentId){
+   public void deleteDepartment(
+           @PathVariable
+           @NotNull(message = "부서 ID는 필수입니다.")
+           @Positive(message = "부서 ID는 1 이상이어야 합니다.") Long departmentId){
+
          departmentService.deleteDepartment(departmentId);
 
-     return ApiResponseDto.success("삭제성공");
    }
 
     @GetMapping
-    public ApiResponseDto<PageResponseDto<Department>> searchDepartment(DepartmentSearchRequestDto request){
+    public PageResponseDto<Department> searchDepartment(
+           @Valid @ModelAttribute DepartmentSearchRequestDto request){
 
-        PageResponseDto<Department> departmentPageResponseDto = departmentService.searchDepartment(request);
-
-        return ApiResponseDto.success(departmentPageResponseDto);
+        return departmentService.searchDepartment(request);
     }
 
 }
