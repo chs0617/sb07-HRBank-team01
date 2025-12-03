@@ -23,7 +23,7 @@ CREATE TABLE departments (
                              updated_at      timestamp,
                              name            varchar(50)     NOT NULL UNIQUE,
                              description     varchar(200)    NOT NULL,
-                             establish_date  date            NOT NULL
+                             established_date  date            NOT NULL
 );
 
 -- 파일
