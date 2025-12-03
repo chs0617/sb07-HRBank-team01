@@ -31,7 +31,7 @@ public class DepartmentController {
 
         DepartmentResponseDto department = departmentService.createDepartment(request);
 
-        return   ResponseEntity.status(HttpStatus.OK).body(department);
+        return   ResponseEntity.status(HttpStatus.CREATED)).body(department);
     }
 
     @GetMapping(value = "/{departmentId}")
