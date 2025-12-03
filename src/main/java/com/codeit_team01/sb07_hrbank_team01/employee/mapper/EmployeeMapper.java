@@ -9,7 +9,9 @@ import java.time.ZoneId;
 @Component
 public class EmployeeMapper {
     public EmployeeResponseDto toDto(Employee employee) {
-        Long profileImageId = employee.getId() != null ? employee.getId() : null;
+        Long profileImageId = employee.getProfile() != null
+                ? employee.getProfile().getId() : null;
+
         return new EmployeeResponseDto(
                 employee.getId(),
                 employee.getName(),
