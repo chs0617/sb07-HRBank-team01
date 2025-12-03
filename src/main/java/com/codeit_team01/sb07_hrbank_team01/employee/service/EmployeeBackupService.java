@@ -26,7 +26,7 @@ public class EmployeeBackupService {
 
     @Transactional
     public File backupEmployeesToCsv(String filePath) {
-        long fileSize = 0L;
+        long fileSize;
         try (
                 Writer writer = new FileWriter(filePath);
                 CSVWriter csvWriter = new CSVWriter(writer);
