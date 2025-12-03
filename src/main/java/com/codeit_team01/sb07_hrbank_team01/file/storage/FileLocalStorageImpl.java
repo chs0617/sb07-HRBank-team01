@@ -13,10 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -96,5 +93,14 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
+    }
+    @Override
+    public Writer getWriter(String filePath) throws IOException {
+        File file = new File(filePath);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
+        return new FileWriter(file);
     }
 }
