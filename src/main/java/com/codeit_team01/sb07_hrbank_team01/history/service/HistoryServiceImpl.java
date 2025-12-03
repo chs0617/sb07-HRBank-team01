@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -16,9 +17,10 @@ public class HistoryServiceImpl implements HistoryService{
 
     // 직원 생성 이력 등록
     @Override
-    public void createHistory(Employee employee, String memo, String ipAddress) {
+    public void createRegistrationHistory(Employee employee, String memo, String ipAddress) {
         History history = History.createHistory(HistoryType.EMPLOYEE_CREATE, employee, memo, ipAddress);
 
+        // 전체 필드 추가
         history.addDetail("입사일", "", employee.getHireDate().toString());
         history.addDetail("이름", "", employee.getName());
         history.addDetail("직함", "", employee.getJobPosition());
@@ -35,19 +37,53 @@ public class HistoryServiceImpl implements HistoryService{
     public void createUpdateHistory(Employee beforeEmployee, Employee afterEmployee, String memo, String ipAddress) {
         History history = History.createHistory(HistoryType.EMPLOYEE_UPDATE, afterEmployee, memo, ipAddress);
 
-
+        //입사일 수정
+        if(!Objects.equals(beforeEmployee.getHireDate(), afterEmployee.getHireDate())){
+            history.addDetail("입사일", beforeEmployee.getHireDate().toString(), afterEmployee.getHireDate().toString());
+        }
+        //이름 수정
+        if(!Objects.equals(beforeEmployee.getName(), afterEmployee.getName())){
+            history.addDetail("이름",  beforeEmployee.getName(), afterEmployee.getName());
+        }
+        //직함 수정
+        if(!Objects.equals(beforeEmployee.getJobPosition(), afterEmployee.getJobPosition())){
+            history.addDetail("직함", beforeEmployee.getJobPosition(), afterEmployee.getJobPosition());
+        }
+        //부서명 수정
+        if(!Objects.equals(beforeEmployee.getDepartment(), afterEmployee.getDepartment())){
+            history.addDetail("부서", beforeEmployee.getDepartment().toString(), afterEmployee.getDepartment().toString());
+        }
+        //이메일 수정
+        if(!Objects.equals(beforeEmployee.getEmail(), afterEmployee.getEmail())){
+            history.addDetail("이메일", beforeEmployee.getEmail(), afterEmployee.getEmail());
+        }
+        //상태 변경 체크
+        if(!Objects.equals(beforeEmployee.getStatus(), afterEmployee.getStatus())){
+            history.addDetail("상태", beforeEmployee.getStatus().toString(), afterEmployee.getStatus().toString());
+        }
     }
 
     // 직원 삭제 이력 등록
     @Override
     public void createDeleteHistory(Employee employee, String memo, String ipAddress) {
+        History history = History.createHistory(HistoryType.EMPLOYEE_DELETE, employee, memo, ipAddress);
 
+        // 전체 필드 추가
+        history.addDetail("입사일", employee.getHireDate().toString(), "");
+        history.addDetail("이름", employee.getName(), "");
+        history.addDetail("직함", employee.getJobPosition(), "");
+        history.addDetail("부서명", employee.getDepartment().toString(), "");
+        history.addDetail("이메일", employee.getEmail(), "");
+        history.addDetail("사번", employee.getEmployeeNo(), "");
+        history.addDetail("상태", employee.getStatus().toString(), "");
+
+        historyRepository.save(history);
     }
 
     // 전체 조회
     @Override
     public List<History> getAllHistory() {
-        return List.of();
+        return historyRepository.findAll();
     }
 
 }
