@@ -13,11 +13,19 @@ public record ErrorResponseDto(
         String message,
         String details
 ) {
+    private static String combine(String code, String message) {
+        return String.format("[%s] %s", code, message);
+    }
+
     public static ErrorResponseDto from(CustomException e) {
+
+        String combinedMessage = String.format("[%s] %s",
+                e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+
         return ErrorResponseDto.builder()
                 .timestamp(LocalDateTime.now().toString())
                 .status(e.getErrorCode().getStatus().value())
-                .message(e.getErrorCode().getMessage())
+                .message(combinedMessage)
                 .details(e.getDetails())
                 .build();
     }

@@ -67,7 +67,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
 
         try {
             if (!Files.exists(path)) {
-                throw new CustomException(ErrorCode.FILE_NOT_FOUND, "파일을 찾을 수 없음");
+                throw new CustomException(ErrorCode.FILE_NOT_FOUND, "id + 번 파일 존재하지 않습니다.");
             }
             return new FileInputStream(path.toFile());
         } catch (IOException e) {
@@ -78,18 +78,12 @@ public class FileLocalStorageImpl implements FileLocalStorage {
     public ResponseEntity<Resource> download(FileResponseDto fileResponseDto) {
         InputStream fileInputStream = get(fileResponseDto.id());
         InputStreamResource resource = new InputStreamResource(fileInputStream);
-        /* 테스트용
-        File file = resolvePath(fileResponseDto.id()).toFile();
-        long realSize = file.length();
-        */
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                 .filename(fileResponseDto.name(), StandardCharsets.UTF_8)
                 .build();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(contentDisposition);
         headers.setContentLength(fileResponseDto.size());
-        // 테스트용
-        // headers.setContentLength(realSize);
         headers.setContentType(MediaType.parseMediaType(fileResponseDto.type()));
 
         return ResponseEntity.ok()
