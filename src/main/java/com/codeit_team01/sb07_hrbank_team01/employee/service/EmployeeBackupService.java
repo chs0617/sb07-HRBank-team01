@@ -26,7 +26,7 @@ public class EmployeeBackupService {
     private final MetaFileRepository metaFileRepository;
 
     // application.yml 에서 경로를 주입
-    @Value("${backup-path}"
+    @Value("${backup-path}")
     private String backupPath;
 
     @Transactional
