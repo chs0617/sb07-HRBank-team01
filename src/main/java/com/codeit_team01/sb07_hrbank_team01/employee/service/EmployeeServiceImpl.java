@@ -11,8 +11,8 @@ import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeReposito
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
-import com.codeit_team01.sb07_hrbank_team01.file.repository.FileRepository;
-import com.codeit_team01.sb07_hrbank_team01.file.service.FileService;
+import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
     private final DepartmentRepository departmentRepository;
-    private final FileRepository metaFileRepository;
-    private final FileService fileService;
+    private final MetaFileRepository metaFileRepository;
+    private final MetaFileService metaFileService;
 
     @Override
     @Transactional
@@ -49,7 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         // WILL BE CHECK : profile 파일 관리 요구사항 확인
         MetaFile profile = null;
         if (fileCreateRequestDto != null) {
-            FileResponseDto file = fileService.createFile(fileCreateRequestDto);
+            FileResponseDto file = metaFileService.createFile(fileCreateRequestDto);
             profile = metaFileRepository.getReferenceById(file.id());
         }
 
@@ -97,7 +97,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         MetaFile newProfile = employee.getProfile();
         if (fileCreateRequestDto != null) {
-            FileResponseDto fileDto = fileService.createFile(fileCreateRequestDto);
+            FileResponseDto fileDto = metaFileService.createFile(fileCreateRequestDto);
             newProfile = metaFileRepository.getReferenceById(fileDto.id());
         }
 
