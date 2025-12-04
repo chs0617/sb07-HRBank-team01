@@ -15,6 +15,6 @@ public interface DepartmentService {
     DepartmentResponseDto updateDepartment(Long departmentId, DepartmentUpdateRequestDto request);
     void deleteDepartment(Long departmentId);
     DepartmentResponseDto getDepartment(Long departmentId);
-    PageResponseDto<Department> searchDepartment(DepartmentSearchRequestDto condition);
+    PageResponseDto<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto condition);
 
 }

@@ -3,6 +3,7 @@ package com.codeit_team01.sb07_hrbank_team01.department.service;
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.common.mapper.PageResponseMapper;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
+import com.codeit_team01.sb07_hrbank_team01.department.mapper.DepartmentResponseMapper;
 import com.codeit_team01.sb07_hrbank_team01.department.repository.DepartmentRepository;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentSearchRequestDto;
@@ -10,13 +11,14 @@ import com.codeit_team01.sb07_hrbank_team01.department.request.DepartmentUpdateR
 import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
-
 import java.util.NoSuchElementException;
 
 
@@ -27,6 +29,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
     private final PageResponseMapper pageResponseMapper;
+    private final DepartmentResponseMapper departmentResponseMapper;
 
     @Override
     @Transactional
@@ -40,7 +43,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department save = departmentRepository.save(department);
 
 
-        return DepartmentResponseDto.from(save, 0);
+        return departmentResponseMapper.toDto(save, 0);
     }
 
     @Override
@@ -59,7 +62,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         int employeeCount = (int) employeeRepository.countByDepartmentId(department.getId());
 
-        return DepartmentResponseDto.from(department, employeeCount);
+        return departmentResponseMapper.toDto(department, employeeCount);
     }
 
     @Override
@@ -81,71 +84,55 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         int employeeCount = (int) employeeRepository.countByDepartmentId(department.getId());
 
-        return DepartmentResponseDto.from(department, employeeCount);
+        return departmentResponseMapper.toDto(department, employeeCount);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public PageResponseDto<Department> searchDepartment(DepartmentSearchRequestDto req) {
-        //처음부터 커서기준으로 정렬을 해야할때가 있다
+    @Override
+    public PageResponseDto<DepartmentResponseDto> searchDepartment(DepartmentSearchRequestDto req) {
 
 
+        //  페이지 설정
+        Pageable pageable = PageRequest.of(0,req.size());
 
-        //없거나 0보다 작으면 디폴트 10에 고정
-        int size = (req.size() == null || req.size() <= 0) ? 10 : req.size();
+        //  레포 호출 (QueryDSL 단일 메서드)
+        Page<Department> page = departmentRepository.search(
+               req.nameOrDescription(),
+               req.sortField(),
+               req.sortDirection(),
+               req.cursor(),
+               req.idAfter(),
+               pageable
+        );
 
-        // 정렬 없음(쿼리에 고정) 커서때문에 커서가 널이면 다 가지고와서 0은그냥 디폴트로
-        Pageable pageable = PageRequest.of(0, size);
-
-        //혹시모르니 일단 소문자로 바꾸자
-        String field = req.sortField() == null ? "name" : req.sortField().toLowerCase();
-        String dir   = req.sortDirection() == null ? "asc"  : req.sortDirection().toLowerCase();
-
-        Page<Department> page;
-
-        //커서가name이냐,establishedDate냐  x  오름차냐,내림차냐
-        //null이면 쿼리 들어갈때 전부 조회라 null인것같으면 null로
-        if ("name".equals(field)) {
-            String cursorName = (req.cursor() == null || req.cursor().isBlank()) ? null : req.cursor();
-            page = "asc".equals(dir)
-                    ? departmentRepository.findByNameAsc(req.nameOrDescription(), cursorName, req.idAfter(), pageable)
-                    : departmentRepository.findByNameDesc(req.nameOrDescription(), cursorName, req.idAfter(), pageable);
-
-        } else if ("establishedDate".equals(field)) {
-            LocalDate cursorDate = parseDateOrNull(req.cursor());
-            page = "asc".equals(dir)
-                    ? departmentRepository.findByDateAsc(req.nameOrDescription(), cursorDate, req.idAfter(), pageable)
-                    : departmentRepository.findByDateDesc(req.nameOrDescription(), cursorDate, req.idAfter(), pageable);
-
-        } else {
-            //한번 더 확인
-            throw new IllegalArgumentException("sortField 값은 'name' or 'establishedDate' 이어야 한다");
-        }
-
-        // DTO 매핑 (employeeCount  이건 많이 조회해서 엠플로이에 한번에 집계하는걸 만들어봐야한다
+        // 콘텐츠 매핑
         List<DepartmentResponseDto> contents = page.getContent().stream()
-                .map(d -> DepartmentResponseDto.from(d, (int) employeeRepository.countByDepartmentId(d.getId())))
+                .map(d -> departmentResponseMapper.toDto(d,
+                        employeeRepository.countByDepartmentId(d.getId())
+                ))
                 .toList();
 
-        //이것도 name이냐 establishedDate 냐에 커서값 할당
-        //전체는0부터하니 -1하고 마지막 컨탠츠의 아이디값
+        //  nextCursor / nextIdAfter 계산
         String nextCursor = null;
         Long nextIdAfter = null;
-        if (!page.getContent().isEmpty()) {
-            Department last = page.getContent().get(page.getContent().size() - 1);
-            nextCursor = "name".equals(field) ? last.getName() : last.getEstablishedDate().toString();
+        if (!page.isEmpty()) {
+            //page.getContent().get()은 0~~n 넘버링이니
+            //마지막 조회를 가지고 와야하는기 반  실제조회갯수가 page.getNumberOfElements()
+            //찐 마지막넘버는 -1 로  5개를가지고왔으면 0~4니까
+            Department last = page.getContent().get(page.getNumberOfElements() - 1);
+            nextCursor = "establishedDate".equals(req.sortField())
+                    ? last.getEstablishedDate().toString()
+                    : last.getName();
             nextIdAfter = last.getId();
         }
 
-        //진짜 요구에맞게 10개 -10개면 size인데 실제 조회면 getNumberOfElements()
+        // Page<DepartmentResponseDto>로 감싸서 매퍼에 전달
+        Page<DepartmentResponseDto> mapped = new PageImpl<>(contents, pageable, page.getTotalElements());
 
-        return  pageResponseMapper.toPageResponseDto(page, nextCursor, nextIdAfter);
+        return pageResponseMapper.toPageResponseDto(mapped, nextCursor, nextIdAfter);
     }
 
-    // 혹시모를 데이트파싱 수정가능
-    private LocalDate parseDateOrNull(String date) {
-        if (date == null || date.isBlank()) return null;
-        return LocalDate.parse(date);
-    }
+
+
 
 }
