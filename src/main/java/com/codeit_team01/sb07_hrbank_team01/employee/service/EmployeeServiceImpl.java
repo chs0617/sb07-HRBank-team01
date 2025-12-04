@@ -3,7 +3,10 @@ package com.codeit_team01.sb07_hrbank_team01.employee.service;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.codeit_team01.sb07_hrbank_team01.department.repository.DepartmentRepository;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeCreateRequestDto;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchConditionDto;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchPageRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeUpdateRequestDto;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeePageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
 import com.codeit_team01.sb07_hrbank_team01.employee.mapper.EmployeeMapper;
@@ -18,8 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -30,8 +33,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
     private final DepartmentRepository departmentRepository;
-    private final MetaFileRepository metaFileRepository;
-    private final MetaFileService metaFileService;
+    private final MetaFileRepository fileRepository;
+    private final MetaFileService fileService;
 
     @Override
     @Transactional
@@ -54,10 +57,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         long nextEmployeeNo = employeeRepository.nextEmployeeNumber();
+        int year = employeeCreateRequestDto.hireDate().getYear();
+
         String employeeNo = String.format(
                 "%s-%d_%06d",
                 department.getName(),
-                LocalDate.now().getYear(),
+                year,
                 nextEmployeeNo
         );
 
@@ -129,9 +134,61 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EmployeeResponseDto getEmployee(Long id) {
         Employee employee = employeeRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
         return employeeMapper.toDto(employee);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeResponseDto> getEmployeesBySearch(EmployeeSearchConditionDto employeeSearchConditionDto) {
+        List<Employee> employees = employeeRepository.search(employeeSearchConditionDto);
+        return employees.stream()
+                .map(employee -> employeeMapper.toDto(employee))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public EmployeePageResponseDto getEmployeesByPageSearch(EmployeeSearchPageRequestDto employeeSearchPageRequestDto) {
+        int pageSize = employeeSearchPageRequestDto.size();
+        EmployeeSearchPageRequestDto pageRequestDto = new EmployeeSearchPageRequestDto(
+                employeeSearchPageRequestDto.employeeSearchConditionDto(),
+                employeeSearchPageRequestDto.sortField(),
+                employeeSearchPageRequestDto.idAfter(),
+                pageSize + 1,
+                employeeSearchPageRequestDto.sortDirection(),
+                employeeSearchPageRequestDto.cursor()
+        );
+        List<Employee> employees = employeeRepository.searchPage(pageRequestDto);
+
+        boolean hasNext = employees.size() > pageSize;
+        if(hasNext) {
+            employees = employees.subList(0, pageSize);
+        }
+
+        List<EmployeeResponseDto> content = employees.stream()
+                .map(employee -> employeeMapper.toDto(employee))
+                .toList();
+
+        Long nextIdAfter = employees.isEmpty()
+                ? null : employees.get(employees.size() - 1).getId();
+
+        String nextCursor = nextIdAfter != null ? String.valueOf(nextIdAfter) : null;
+
+        long totalElements = employeeRepository
+                .countBySearchCondition(employeeSearchPageRequestDto.employeeSearchConditionDto());
+
+
+        return new EmployeePageResponseDto(
+                content,
+                nextCursor,
+                nextIdAfter,
+                pageSize,
+                totalElements,
+                hasNext
+        );
     }
 }
