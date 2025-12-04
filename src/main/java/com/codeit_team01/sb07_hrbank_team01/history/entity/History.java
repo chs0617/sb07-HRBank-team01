@@ -40,6 +40,7 @@ public class History extends BaseEntity {
     private Employee employee;
 
     // 변경 상세 목록 (1:N)
+    // details도 테이블을 갖고 있으니 DB에 관계를 맺어서 add할 필요 없게 하는 방법을 찾아보자.
     @OneToMany(mappedBy = "history", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<HistoryDetail> details = new ArrayList<>();
 
@@ -47,7 +48,7 @@ public class History extends BaseEntity {
         History history = new History();
         history.type = type;
         history.employee = employee;
-        history.memo = memo != null ? memo : defaultMemo(type);
+        history.memo = memo != null ? memo : type.getDefaultMemo();
         history.ipAddress = ipAddress;
         return history;
     }
@@ -55,14 +56,5 @@ public class History extends BaseEntity {
     public void addDetail(String propertyName, String beforeValue, String afterValue) {
         HistoryDetail detail = HistoryDetail.createDetail(propertyName, beforeValue, afterValue, this);
         this.details.add(detail);
-    }
-
-    private static String defaultMemo(HistoryType type) {
-        // 향상된 switch문
-        return switch (type) {
-            case EMPLOYEE_CREATE -> "신규 직원 등록";
-            case EMPLOYEE_UPDATE -> "직원 정보 수정";
-            case EMPLOYEE_DELETE -> "직원 삭제";
-        };
     }
 }
