@@ -52,8 +52,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         // WILL BE CHECK : profile 파일 관리 요구사항 확인
         MetaFile profile = null;
         if (fileCreateRequestDto != null) {
-            FileResponseDto file = fileService.createFile(fileCreateRequestDto);
-            profile = fileRepository.getReferenceById(file.id());
+            FileResponseDto file = metaFileService.createFile(fileCreateRequestDto);
+            profile = metaFileRepository.getReferenceById(file.id());
         }
 
         long nextEmployeeNo = employeeRepository.nextEmployeeNumber();
@@ -102,8 +102,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         MetaFile newProfile = employee.getProfile();
         if (fileCreateRequestDto != null) {
-            FileResponseDto fileDto = fileService.createFile(fileCreateRequestDto);
-            newProfile = fileRepository.getReferenceById(fileDto.id());
+            FileResponseDto fileDto = metaFileService.createFile(fileCreateRequestDto);
+            newProfile = metaFileRepository.getReferenceById(fileDto.id());
         }
 
         Instant hireDate = employeeUpdateRequestDto.hireDate()
