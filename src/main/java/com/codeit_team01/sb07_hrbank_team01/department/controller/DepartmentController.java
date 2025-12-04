@@ -58,7 +58,7 @@ public class DepartmentController {
    }
 
     @GetMapping
-    public ResponseEntity<PageResponseDto<DepartmentResponseDto>> searchDepartment(@Valid @ModelAttribute DepartmentSearchRequestDto request){
+    public ResponseEntity<PageResponseDto<DepartmentResponseDto>> getDepartmentsByCursor(@Valid @ModelAttribute DepartmentSearchRequestDto request){
 
         PageResponseDto<DepartmentResponseDto> departmentPageResponseDto = departmentService.searchDepartment(request);
 
