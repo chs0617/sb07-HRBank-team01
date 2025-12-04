@@ -6,14 +6,13 @@ import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeCreateR
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeUpdateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
-import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 import com.codeit_team01.sb07_hrbank_team01.employee.mapper.EmployeeMapper;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
-import com.codeit_team01.sb07_hrbank_team01.file.entity.File;
-import com.codeit_team01.sb07_hrbank_team01.file.repository.FileRepository;
-import com.codeit_team01.sb07_hrbank_team01.file.service.FileService;
+import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
+import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
     private final DepartmentRepository departmentRepository;
-    private final FileRepository fileRepository;
-    private final FileService fileService;
+    private final MetaFileRepository metaFileRepository;
+    private final MetaFileService metaFileService;
 
     @Override
     @Transactional
@@ -48,10 +47,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new NoSuchElementException("부서를 찾을 수 없습니다."));
 
         // WILL BE CHECK : profile 파일 관리 요구사항 확인
-        File profile = null;
+        MetaFile profile = null;
         if (fileCreateRequestDto != null) {
-            FileResponseDto file = fileService.createFile(fileCreateRequestDto);
-            profile = fileRepository.getReferenceById(file.id());
+            FileResponseDto file = metaFileService.createFile(fileCreateRequestDto);
+            profile = metaFileRepository.getReferenceById(file.id());
         }
 
         long nextEmployeeNo = employeeRepository.nextEmployeeNumber();
@@ -96,10 +95,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Department department = departmentRepository.findById(employeeUpdateRequestDto.departmentId())
                 .orElseThrow(() -> new NoSuchElementException("일치하는 부서가 없습니다."));
 
-        File newProfile = employee.getProfile();
+        MetaFile newProfile = employee.getProfile();
         if (fileCreateRequestDto != null) {
-            FileResponseDto fileDto = fileService.createFile(fileCreateRequestDto);
-            newProfile = fileRepository.getReferenceById(fileDto.id());
+            FileResponseDto fileDto = metaFileService.createFile(fileCreateRequestDto);
+            newProfile = metaFileRepository.getReferenceById(fileDto.id());
         }
 
         Instant hireDate = employeeUpdateRequestDto.hireDate()
