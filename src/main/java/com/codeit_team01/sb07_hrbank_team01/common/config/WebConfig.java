@@ -15,6 +15,6 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(clientIpInterceptor)
-        .addPathPatterns("/api/backup"); // backup 경로
+        .addPathPatterns("/api/backups/**"); // backup 경로
   }
 }
