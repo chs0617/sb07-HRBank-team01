@@ -88,17 +88,17 @@ public class FileLocalStorageImpl implements FileLocalStorage {
                 .body(resource);
     }
     @Override
-    public Writer getWriter(String filePath) throws IOException {
-        File file = new File(filePath);
-        File parent = file.getParentFile();
+    public Writer getWriter(Long id) throws IOException {
+        Path path = resolvePath(id);
+        File parent = path.getParent().toFile();
         if (parent != null && !parent.exists()) {
             parent.mkdirs();
         }
-        return new FileWriter(file);
+        return new FileWriter(path.toFile());
     }
 
     @Override
-    public long size(Path fullPath) throws IOException {
-        return Files.size(fullPath);
+    public long size(Long id) throws IOException {
+        return Files.size(resolvePath(id));
     }
 }

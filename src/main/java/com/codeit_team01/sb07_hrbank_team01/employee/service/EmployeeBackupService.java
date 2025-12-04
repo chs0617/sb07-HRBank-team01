@@ -2,8 +2,8 @@ package com.codeit_team01.sb07_hrbank_team01.employee.service;
 
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
-import com.codeit_team01.sb07_hrbank_team01.file.entity.File;
-import com.codeit_team01.sb07_hrbank_team01.file.repository.FileRepository;
+import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
+import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.storage.FileLocalStorage;
 import com.opencsv.CSVWriter;
 import lombok.RequiredArgsConstructor;
@@ -23,20 +23,26 @@ public class EmployeeBackupService {
 
     private final EmployeeRepository employeeRepository;
     private final FileLocalStorage fileLocalStorage;
-    private final FileRepository fileRepository;
+    private final MetaFileRepository metaFileRepository;
 
     // application.yml 에서 경로를 주입
     @Value("${backup-path}")
     private String backupPath;
 
     @Transactional
-    public File backupEmployeesToCsv(String fileName) {
+    public MetaFile backupEmployeesToCsv(String fileName) {
         // 1. 실제 저장 경로를 Path API로 안전하게 조립
         Path fullPath = Paths.get(backupPath, fileName);
         long fileSize = 0;
+
+        MetaFile metaFile = MetaFile.builder()
+                .name(fullPath.getFileName().toString())
+                .type("text/csv")
+                .size(fileSize)
+                .build();
         // 2. fileLocalStorage에서 Writer를 받아와서 CSV를 기록
         try (
-                Writer writer = fileLocalStorage.getWriter((fullPath.toString())); // 별도의 FileWriter 직접 사용 안함
+                Writer writer = fileLocalStorage.getWriter(metaFile.getId()); // 별도의 FileWriter 직접 사용 안함
                 CSVWriter csvWriter = new CSVWriter(writer);
                 Stream<Employee> employeeStream = employeeRepository.streamAll()
         ) {
@@ -71,13 +77,13 @@ public class EmployeeBackupService {
         }
 
         // 6. DB에 파일 정보 저장 (파일명은 Path에서 추출)
-        File fileEntity = File.builder()
+        MetaFile fileEntity = MetaFile.builder()
                 .name(fullPath.getFileName().toString())
                 .type("text/csv")
                 .size(fileSize)
                 .build();
 
-        fileRepository.save(fileEntity);
+        metaFileRepository.save(fileEntity);
         return fileEntity;
     }
 }
