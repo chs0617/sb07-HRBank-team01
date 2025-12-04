@@ -26,12 +26,13 @@ public class EmployeeBackupService {
     private final MetaFileRepository metaFileRepository;
 
     // application.yml 에서 경로를 주입
-    @Value("${backup-path}")
+    @Value("${backup-path}"
     private String backupPath;
 
     @Transactional
-    public MetaFile backupEmployeesToCsv(String fileName) {
+    public MetaFile backupEmployeesToCsv(Long id) {
         // 1. 실제 저장 경로를 Path API로 안전하게 조립
+        String fileName = "employee-backup-" + id + ".csv";
         Path fullPath = Paths.get(backupPath, fileName);
         long fileSize = 0;
 
