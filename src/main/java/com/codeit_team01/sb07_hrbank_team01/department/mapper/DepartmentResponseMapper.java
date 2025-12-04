@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface DepartmentResponseMapper {
 
 
-    @Mapping(target = "employeeCount", source = "employeeCount")
+    
     DepartmentResponseDto toDto(Department department, int employeeCount);
 
 
