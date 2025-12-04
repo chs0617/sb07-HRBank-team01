@@ -38,3 +38,4 @@ HRBank:
     local:
       # path: Users/사용자이름/Desktop/HRBank/
       root-path: "${user.home}/Desktop/HRBank/"
+      backup-path: "${user.home}/Desktop/HRBank/backup"
