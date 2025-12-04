@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.file.Path;
 
 public interface FileLocalStorage {
 
@@ -16,4 +17,7 @@ public interface FileLocalStorage {
 
     ResponseEntity<Resource> download(FileResponseDto fileResponseDto);
 
+    Writer getWriter(String filePath) throws IOException;
+
+    long size(Path fullPath) throws IOException;
 }
