@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(name = "/api/employees")
+@RequestMapping(value = "/api/employees")
 public class EmployeeController {
     private final EmployeeService employeeService;
 
@@ -36,12 +36,12 @@ public class EmployeeController {
         return employeeService.createEmployee(employee, profileDto);
     }
 
-    @GetMapping(name = "/{id}")
+    @GetMapping(value = "/{id}")
     public EmployeeResponseDto getEmployee(@PathVariable("id") Long id) {
         return employeeService.getEmployee(id);
     }
 
-    @PatchMapping(name = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public EmployeeResponseDto updateEmployee(
             @PathVariable("id") Long id,
             @Valid @RequestPart("employee") EmployeeUpdateRequestDto employee,
@@ -53,7 +53,7 @@ public class EmployeeController {
         return employeeService.updateEmployee(employee, profileDto, id);
     }
 
-    @DeleteMapping(name = "/{id")
+    @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEmployee(@PathVariable("id") Long id) {
         employeeService.deleteEmployee(id);
@@ -101,7 +101,7 @@ public class EmployeeController {
         return employeeService.getEmployeesByPageSearch(pageRequestDto);
     }
 
-    @GetMapping(name = "/stats/trend")
+    @GetMapping(value = "/stats/trend")
     public List<EmployeeTrendResponseDto> getEmployeesTrend(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -113,7 +113,7 @@ public class EmployeeController {
     }
 
 
-    @GetMapping(name = "/stats/distribution")
+    @GetMapping(value = "/stats/distribution")
     public List<EmployeeDistributionResponseDto> getEmployeesDistribution(
             @RequestParam(required = false, defaultValue = "department") String groupBy,
             @RequestParam(required = false) EmployeeStatus status
@@ -121,7 +121,7 @@ public class EmployeeController {
         return employeeService.getEmployeeDistribution(groupBy, status);
     }
 
-    @GetMapping(name = "/count")
+    @GetMapping(value = "/count")
     public long  getEmployeeCount(
             @RequestParam(required = false) EmployeeStatus status,
             @RequestParam(required = false)
