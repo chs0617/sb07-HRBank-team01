@@ -102,13 +102,9 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
             String sortDirection,
             String sortField
     ) {
-        System.out.println("aaaaaaaaaaa==== sortDirection ================ +" + sortDirection);
-        System.out.println("========================sort FIled =========== + " + sortField);
         if (cursor == null || idAfter == null) {
             return null;
         }
-        System.out.println("aaaaaaaaaaa==== sortDirection ================ +" + sortDirection);
-        System.out.println("========================sort FIled =========== + " + sortField);
         boolean isDesc = "desc".equalsIgnoreCase(sortDirection);
 
         // 1. 상태(status) 필드로 정렬하는 경우 (String/Enum 타입)
@@ -155,15 +151,13 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
     }
 
     private OrderSpecifier<?> createMainOrderSpecifier(String sortField, String sortDirection) {
-        System.out.println(sortField + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + sortDirection);
         if (sortField == null) return backup.id.desc(); // 기본 정렬 (ID DESC)
         boolean isDesc = "desc".equalsIgnoreCase(sortDirection);
-        String lowerSortField = sortField.toLowerCase();
 
         return switch (sortField) {
             case "status" -> isDesc ? backup.status.desc() : backup.status.asc();
-            case "startedat" -> isDesc ? backup.startTime.desc() : backup.startTime.asc();
-            case "endedat" -> isDesc ? backup.endTime.desc() : backup.endTime.asc();
+            case "startedAt" -> isDesc ? backup.startTime.desc() : backup.startTime.asc();
+            case "endedAt" -> isDesc ? backup.endTime.desc() : backup.endTime.asc();
             default -> backup.id.desc();
         };
     }

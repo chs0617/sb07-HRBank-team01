@@ -29,11 +29,11 @@ public class BackupController {
       @RequestParam(required = false) Long idAfter,
       @RequestParam(required = false) String cursor,
       @RequestParam(required = false, defaultValue = "10") Integer size,
-      @RequestParam(required = false, defaultValue = "StartedAt") String sortFiled,
+      @RequestParam(required = false, defaultValue = "startedAt") String sortField,
       @RequestParam(required = false, defaultValue = "DESC") String sortDirection
   ) {
     BackupRequestDto backupRequestDto =
-        new BackupRequestDto(worker, status, startedAtFrom, startedAtTo, idAfter, cursor, size, sortFiled, sortDirection);
+        new BackupRequestDto(worker, status, startedAtFrom, startedAtTo, idAfter, cursor, size, sortField, sortDirection);
     PageResponseDto<BackupResponseDto> backupPageList
         = backupService.getBackupPageList(backupRequestDto);
     return ResponseEntity.status(HttpStatus.OK).body(backupPageList);
