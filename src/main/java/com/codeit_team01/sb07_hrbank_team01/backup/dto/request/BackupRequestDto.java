@@ -1,6 +1,8 @@
 package com.codeit_team01.sb07_hrbank_team01.backup.dto.request;
 
 import com.codeit_team01.sb07_hrbank_team01.backup.entity.BackupStatus;
+import lombok.Builder;
+
 import java.time.Instant;
 
 /**
@@ -15,7 +17,7 @@ import java.time.Instant;
  * @param sortField     정렬 필드 (startedAt, endedAt, status) Default value : startedAt
  * @param sortDirection 정렬 방향 (ASC, DESC) Default value : DESC
  */
-//@Builder
+@Builder
 // 테스트 코드 사용 시 Builder 필요
 public record BackupRequestDto(
     String worker,
@@ -27,7 +29,6 @@ public record BackupRequestDto(
     Integer size,
     String sortField,
     String sortDirection
-
 ) {
 
 }

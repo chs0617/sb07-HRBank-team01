@@ -9,6 +9,6 @@ import org.mapstruct.Mapping;
 public interface BackupMapper {
   @Mapping(source = "startTime", target = "startedAt")
   @Mapping(source = "endTime", target = "endedAt")
-  @Mapping(source = "file.id", target = "fileId")
+  @Mapping(source = "metaFile.id", target = "fileId")
   BackupResponseDto toDto(Backup backup);
 }
