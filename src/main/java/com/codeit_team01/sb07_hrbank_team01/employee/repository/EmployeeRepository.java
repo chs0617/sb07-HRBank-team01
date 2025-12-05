@@ -11,8 +11,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
     boolean existsByEmailIgnoreCase(String email);
 
     @Query(value = "SELECT nextval('employee_global_number')", nativeQuery = true)
-    Stream<Employee> streamAll();
     long nextEmployeeNumber();
+
+    Stream<Employee> streamAll();
 
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
 }
