@@ -10,10 +10,7 @@ import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -29,6 +26,9 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
 
     @Override
     public Page<Backup> findBackupPage(BackupRequestDto cond) {
+
+        int pageSize = cond.size() != null ? cond.size() : 10;
+        Pageable pageable = PageRequest.of(0, pageSize);
 
         // 1. 주 정렬 조건 (status, startedAt, endedAt)
         OrderSpecifier<?> mainSort = createMainOrderSpecifier(cond.sortField(), cond.sortDirection());
@@ -54,26 +54,22 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
                         cursorCondition
                 )
                 .orderBy(mainSort, idSort)
-                .limit(cond.size())
+                .limit(pageSize + 1)
                 .fetch(); // fetch: limit처럼 원하는 행의 개수 설정하는 옵션
 
-        // 전체 건수
-        Long total = query.select(backup.count())
-                .from(backup)
-                .where(
-                        workerContains(cond.worker()),
-                        statusEq(cond.status()),
-                        createdAtBetween(cond.startedAtFrom(), cond.startedAtTo())
-                )
-                .fetchOne();
+        // 5. hasNext 판단 및 데이터 자르기
+        boolean hasNext = false;
+        if (contents.size() > pageSize) {
+            contents.remove(pageSize); // 확인용으로 가져온 마지막 데이터 제거
+            hasNext = true;
+        }
 
-        // PageImpl 생성자를 위해 Pageable 객체 생성
-        Pageable pageable = PageRequest.of(0, cond.size().intValue());
+        // hasNext가 true면: pageSize + 1을 total로 설정하여 다음 페이지가 있다고 믿게 함.
+        // hasNext가 false면: contents.size()를 total로 설정하여 여기가 끝이라고 믿게 함.
+        long fakeTotal = hasNext ? (long) pageSize + 1 : contents.size();
 
-        // 6. PageImpl 반환
-        return new PageImpl<>(contents, pageable, total == null ? 0L : total);
+        return new PageImpl<>(contents, pageable, fakeTotal);
     }
-
 
     private BooleanExpression workerContains(String worker) {
         return worker != null ? backup.worker.contains(worker) : null;
@@ -102,23 +98,29 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
             String sortDirection,
             String sortField
     ) {
-        if (cursor == null || idAfter == null) {
+        if (cursor == null || cursor.isBlank() || idAfter == null || idAfter == 0) {
             return null;
         }
         boolean isDesc = "desc".equalsIgnoreCase(sortDirection);
 
+
         // 1. 상태(status) 필드로 정렬하는 경우 (String/Enum 타입)
         if ("status".equalsIgnoreCase(sortField)) {
-            String cursorString = cursor;
+            try {
+                // BackupStatus Enum 타입으로 변환 시도
+                BackupStatus.valueOf(cursor);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
 
             if (isDesc) {
                 // DESC: status < cursor OR (status = cursor AND id < idAfter)
-                return backup.status.stringValue().lt(cursorString)
-                        .or(backup.status.stringValue().eq(cursorString).and(backup.id.lt(idAfter)));
+                return backup.status.stringValue().lt(cursor)
+                        .or(backup.status.stringValue().eq(cursor).and(backup.id.lt(idAfter)));
             } else {
                 // ASC: status > cursor OR (status = cursor AND id > idAfter)
-                return backup.status.stringValue().gt(cursorString)
-                        .or(backup.status.stringValue().eq(cursorString).and(backup.id.gt(idAfter)));
+                return backup.status.stringValue().gt(cursor)
+                        .or(backup.status.stringValue().eq(cursor).and(backup.id.gt(idAfter)));
             }
 
         }
@@ -152,6 +154,8 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
 
     private OrderSpecifier<?> createMainOrderSpecifier(String sortField, String sortDirection) {
         if (sortField == null) return backup.id.desc(); // 기본 정렬 (ID DESC)
+
+
         boolean isDesc = "desc".equalsIgnoreCase(sortDirection);
 
         return switch (sortField) {
@@ -160,5 +164,17 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
             case "endedAt" -> isDesc ? backup.endTime.desc() : backup.endTime.asc();
             default -> backup.id.desc();
         };
+    }
+
+    @Override
+    public Long countTotalElements(String worker, BackupStatus status, Instant startedAt, Instant endedAt) {
+        return query.select(backup.count())
+                .from(backup)
+                .where(
+                        workerContains(worker),
+                        statusEq(status),
+                        createdAtBetween(startedAt, endedAt)
+                )
+                .fetchOne();
     }
 }
