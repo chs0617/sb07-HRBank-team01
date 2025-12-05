@@ -35,7 +35,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_CREATE, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.CREATED, employee, memo, ipAddress);
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, null, employee);
@@ -50,7 +50,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_UPDATE, afterEmployee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.UPDATED, afterEmployee, memo, ipAddress);
 
         // 수정할 필드 추가
         addChangedEmployeeDetails(history, beforeEmployee, afterEmployee);
@@ -65,7 +65,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_DELETE, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.DELETED, employee, memo, ipAddress);
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, employee, null);
