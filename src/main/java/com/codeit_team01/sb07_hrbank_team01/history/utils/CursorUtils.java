@@ -1,4 +1,4 @@
-package com.codeit_team01.sb07_hrbank_team01.history.uils;
+package com.codeit_team01.sb07_hrbank_team01.history.utils;
 
 import java.util.Base64;
 
