@@ -2,20 +2,10 @@ package com.codeit_team01.sb07_hrbank_team01.backup.entity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseUpdateEntity;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.Instant;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,5 +31,40 @@ public class Backup extends BaseUpdateEntity {
   @JoinColumn(name = "file_id")
   private MetaFile metaFile;
 
+  public void update(
+      String worker,
+      BackupStatus status,
+      Instant startTime,
+      Instant endTime,
+      MetaFile metaFile
+  ) {
+    if (worker != null && !worker.equals(this.worker)) {
+      this.status = status;
+    }
 
+    if (status != null && status != this.status) {
+      this.status = status;
+    }
+    if (startTime != null && !startTime.equals(this.startTime)) {
+      this.startTime = startTime;
+    }
+    if (endTime != null && !endTime.equals(this.endTime)) {
+      this.endTime = endTime;
+    }
+    if (metaFile != null && !metaFile.equals(this.metaFile)) {
+      this.metaFile = metaFile;
+    }
+  }
+
+    @Override
+    public String toString() {
+        return "Backup{" +
+                "id = " + this.getId() +
+                "worker='" + worker + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", status=" + status +
+                ", metaFile=" + metaFile +
+                '}';
+    }
 }
