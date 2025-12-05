@@ -27,11 +27,9 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.querydsl.core.types.dsl.Wildcard.count;
 
 @Service
 @RequiredArgsConstructor
@@ -202,52 +200,52 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<EmployeeTrendResponseDto> getEmployeeTrend(LocalDate from, LocalDate to, String unit) {
         LocalDate now = LocalDate.now();
-        String unitValue = (unit == null || unit.isEmpty()) ? "month" : unit;
+        String unitValue = (unit == null || unit.isEmpty()) ? "month" : unit.toLowerCase();
 
+        LocalDate fromDate = from;
+        LocalDate toDate = to;
 
-        if(from ==null && to == null) {
-            if(!"month".equals(unitValue)) {
-                unit = "month";
-            }
-            to = now;
-            from = now.minusMonths(11);
-        } else if (from == null) {
-            to = to;
-            from = switch (unitValue) {
-                case "day" -> to.minusDays(11);
-                case "week" -> to.minusWeeks(11);
-                case "month" -> to.minusMonths(11);
-                case "quarter" -> to.minusMonths(3L * 11);
-                case "year" -> to.minusYears(11);
+        if(fromDate == null && toDate == null) {
+            unitValue = "month";
+            toDate = now;
+            fromDate = now.minusMonths(11);
+        } else if (fromDate == null) {
+            toDate = (toDate != null) ? toDate : now;
+            fromDate = switch (unitValue) {
+                case "day" -> toDate.minusDays(11);
+                case "week" -> toDate.minusWeeks(11);
+                case "month" -> toDate.minusMonths(11);
+                case "quarter" -> toDate.minusMonths(3L * 11);
+                case "year" -> toDate.minusYears(11);
                 default -> throw new IllegalArgumentException("지원하는 날짜가 아닙니다.");
             };
-        } else if(to == null) {
-            to = now;
+        } else if(toDate == null) {
+            toDate = now;
         }
+
+        final String finalUnit = unitValue;
+        final LocalDate finalFrom = fromDate;
+        final LocalDate finalTo = toDate;
+
         EmployeeSearchConditionDto condition = new EmployeeSearchConditionDto(
                 null,
                 null,
                 null,
                 null,
-                from,
-                to,
+                fromDate,
+                toDate,
                 null
         );
         List<Employee> employees = employeeRepository.search(condition);
 
-        LocalDate finalFrom = from;
-        LocalDate finalTo = to;
         Map<LocalDate, Long> grouped = employees.stream()
-                .map(employee -> new AbstractMap.SimpleEntry<>(
-                        toUnitDate(employee.getHireDate(), unitValue), 1))
-                .filter(entry -> {
-                    LocalDate localDate = entry.getKey();
-                    return localDate != null && !localDate.isBefore(finalFrom) && !localDate.isAfter(finalTo);
-                })
-                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting()
+                .map(employee -> toUnitDate(employee.getHireDate(), finalUnit))
+                .filter(obj -> Objects.nonNull(obj))
+                .filter(d -> !d.isBefore(finalFrom) && !d.isAfter(finalTo))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()
                 ));
 
-        List<LocalDate> localDates = buildUnitDates(from, to, unitValue);
+        List<LocalDate> localDates = buildUnitDates(fromDate, toDate, unitValue);
         List<EmployeeTrendResponseDto> result = new ArrayList<>();
         Long prevCount = null;
         for (LocalDate localDate : localDates) {
@@ -331,51 +329,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDistributionResponseDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
-        String group = (groupBy == null || groupBy.isEmpty()) ?
-                "department" : groupBy.toLowerCase();
-
         EmployeeStatus employeeStatus = status != null ?
                 status : EmployeeStatus.ACTIVE;
-        EmployeeSearchConditionDto condition = new EmployeeSearchConditionDto(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                employeeStatus
-        );
 
-        List<Employee> employees = employeeRepository.search(condition);
-        if (employees.isEmpty()) {
-            return List.of();
-        }
-
-        // 그룹핑 ( 부서명 / 직책 )
-        Map<String, Long> groupCount = employees.stream()
-                .collect(Collectors.groupingBy(employee ->
-                        switch (group) {
-                            case "department" -> employee.getDepartment() != null ?
-                                    employee.getDepartment().getName() : "UNKNOWN";
-                            case "position" -> employee.getJobPosition() != null ?
-                                    employee.getJobPosition() :  "UNKNOWN";
-                            default -> throw new IllegalStateException("지원하지 않는 그룹입니다." + group);
-                        },
-                        Collectors.counting()));
-
-        long total = groupCount.values().stream()
-                .mapToLong(value -> value.longValue()).sum();
-
-        return groupCount.entrySet().stream()
-                .map(entry -> {
-                    String key = entry.getKey();
-                    long count = entry.getValue();
-                    double percentage = (count*100.0) / total;
-                    return new EmployeeDistributionResponseDto(key, count, percentage);
-                })
-                .sorted(Comparator.comparingLong(
-                        EmployeeDistributionResponseDto::count).reversed())
-                .toList();
+        return employeeRepository.findDistribution(groupBy, employeeStatus);
     }
 
     @Override

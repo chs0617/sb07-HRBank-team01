@@ -1,6 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.employee.entity;
 
-import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
+import com.codeit_team01.sb07_hrbank_team01.base.BaseUpdateEntity;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
 import jakarta.persistence.*;
@@ -15,7 +15,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "employees")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Employee extends BaseEntity {
+public class Employee extends BaseUpdateEntity {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
