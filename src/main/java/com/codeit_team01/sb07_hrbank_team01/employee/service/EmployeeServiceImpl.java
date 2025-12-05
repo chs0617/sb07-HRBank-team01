@@ -6,9 +6,12 @@ import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeCreateR
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchConditionDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchPageRequestDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeUpdateRequestDto;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeDistributionResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeePageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeResponseDto;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeTrendResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
+import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 import com.codeit_team01.sb07_hrbank_team01.employee.mapper.EmployeeMapper;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.dto.FileCreateRequestDto;
@@ -20,11 +23,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.time.chrono.ChronoLocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.querydsl.core.types.dsl.Wildcard.count;
 
 @Service
 @RequiredArgsConstructor
@@ -190,5 +197,207 @@ public class EmployeeServiceImpl implements EmployeeService {
                 totalElements,
                 hasNext
         );
+    }
+
+    @Override
+    public List<EmployeeTrendResponseDto> getEmployeeTrend(LocalDate from, LocalDate to, String unit) {
+        LocalDate now = LocalDate.now();
+        String unitValue = (unit == null || unit.isEmpty()) ? "month" : unit;
+
+
+        if(from ==null && to == null) {
+            if(!"month".equals(unitValue)) {
+                unit = "month";
+            }
+            to = now;
+            from = now.minusMonths(11);
+        } else if (from == null) {
+            to = to;
+            from = switch (unitValue) {
+                case "day" -> to.minusDays(11);
+                case "week" -> to.minusWeeks(11);
+                case "month" -> to.minusMonths(11);
+                case "quarter" -> to.minusMonths(3L * 11);
+                case "year" -> to.minusYears(11);
+                default -> throw new IllegalArgumentException("지원하는 날짜가 아닙니다.");
+            };
+        } else if(to == null) {
+            to = now;
+        }
+        EmployeeSearchConditionDto condition = new EmployeeSearchConditionDto(
+                null,
+                null,
+                null,
+                null,
+                from,
+                to,
+                null
+        );
+        List<Employee> employees = employeeRepository.search(condition);
+
+        LocalDate finalFrom = from;
+        LocalDate finalTo = to;
+        Map<LocalDate, Long> grouped = employees.stream()
+                .map(employee -> new AbstractMap.SimpleEntry<>(
+                        toUnitDate(employee.getHireDate(), unitValue), 1))
+                .filter(entry -> {
+                    LocalDate localDate = entry.getKey();
+                    return localDate != null && !localDate.isBefore(finalFrom) && !localDate.isAfter(finalTo);
+                })
+                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.counting()
+                ));
+
+        List<LocalDate> localDates = buildUnitDates(from, to, unitValue);
+        List<EmployeeTrendResponseDto> result = new ArrayList<>();
+        Long prevCount = null;
+        for (LocalDate localDate : localDates) {
+            Long count = grouped.getOrDefault(localDate, 0L);
+
+            Long charge = null;
+            Double chargeRate = null;
+            if (prevCount != null) {
+                charge = count - prevCount;
+                if (prevCount != 0) {
+                    chargeRate = (charge * 100.0) / prevCount;
+                }
+            }
+
+            result.add(new EmployeeTrendResponseDto(
+                    localDate,
+                    count,
+                    charge,
+                    chargeRate
+            ));
+            prevCount = count;
+        }
+        return result;
+    }
+
+    private LocalDate toUnitDate(Instant hireDate, String unit) {
+        if(hireDate == null) {
+            return null;
+        }
+        LocalDate date = hireDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        return switch (unit) {
+            case "day" -> date;
+            case "week" -> date.with(DayOfWeek.MONDAY);
+            case "month" -> date.withDayOfMonth(1);
+            case "quarter" -> LocalDate.of(
+                    date.getYear(),
+                    ((date.getMonthValue() - 1) / 3) * 3 + 1,
+                    1);
+            case "year" -> LocalDate.of(date.getYear(), 1, 1);
+            default -> throw new IllegalArgumentException("지원하지 않는 날짜입니다.");
+        };
+    }
+
+
+    private List<LocalDate> buildUnitDates(LocalDate from, LocalDate to, String unit) {
+        List<LocalDate> dates = new ArrayList<>();
+        LocalDate cursor = normalizeFrom(from, unit);
+
+        while (!cursor.isAfter(to)) {
+            dates.add(cursor);
+            cursor = moveNext(cursor, unit);
+        }
+        return dates;
+    }
+
+    private LocalDate normalizeFrom(LocalDate from, String unit) {
+        return switch (unit) {
+            case "day" -> from;
+            case "week" -> from.with(DayOfWeek.MONDAY);
+            case "month" -> from.withDayOfMonth(1);
+            case "quarter" -> {
+                int m = from.getMonthValue();
+                int startMonth = ((m - 1) / 3) * 3 + 1;
+                yield LocalDate.of(from.getYear(), startMonth, 1);
+            }
+            case "year" -> LocalDate.of(from.getYear(), 1, 1);
+            default -> throw new IllegalArgumentException("지원하지 않는 unit 입니다: " + unit);
+        };
+    }
+
+    private LocalDate moveNext(LocalDate date, String unit) {
+        return switch (unit) {
+            case "day" -> date.plusDays(1);
+            case "week" -> date.plusWeeks(1);
+            case "month" -> date.plusMonths(1);
+            case "quarter" -> date.plusMonths(3);
+            case "year" -> date.plusYears(1);
+            default -> throw new IllegalArgumentException("지원하지 않는 unit 입니다: " + unit);
+        };
+    }
+
+    @Override
+    public List<EmployeeDistributionResponseDto> getEmployeeDistribution(String groupBy, EmployeeStatus status) {
+        String group = (groupBy == null || groupBy.isEmpty()) ?
+                "department" : groupBy.toLowerCase();
+
+        EmployeeStatus employeeStatus = status != null ?
+                status : EmployeeStatus.ACTIVE;
+        EmployeeSearchConditionDto condition = new EmployeeSearchConditionDto(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                employeeStatus
+        );
+
+        List<Employee> employees = employeeRepository.search(condition);
+        if (employees.isEmpty()) {
+            return List.of();
+        }
+
+        // 그룹핑 ( 부서명 / 직책 )
+        Map<String, Long> groupCount = employees.stream()
+                .collect(Collectors.groupingBy(employee ->
+                        switch (group) {
+                            case "department" -> employee.getDepartment() != null ?
+                                    employee.getDepartment().getName() : "UNKNOWN";
+                            case "position" -> employee.getJobPosition() != null ?
+                                    employee.getJobPosition() :  "UNKNOWN";
+                            default -> throw new IllegalStateException("지원하지 않는 그룹입니다." + group);
+                        },
+                        Collectors.counting()));
+
+        long total = groupCount.values().stream()
+                .mapToLong(value -> value.longValue()).sum();
+
+        return groupCount.entrySet().stream()
+                .map(entry -> {
+                    String key = entry.getKey();
+                    long count = entry.getValue();
+                    double percentage = (count*100.0) / total;
+                    return new EmployeeDistributionResponseDto(key, count, percentage);
+                })
+                .sorted(Comparator.comparingLong(
+                        EmployeeDistributionResponseDto::count).reversed())
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getEmployeeCount(EmployeeStatus status, LocalDate fromDate, LocalDate toDate) {
+        LocalDate now = LocalDate.now();
+        LocalDate from = fromDate;
+        LocalDate to = toDate;
+
+        if (from != null && to == null) {
+            to = now;
+        }
+
+        EmployeeSearchConditionDto employeeSearchConditionDto = new EmployeeSearchConditionDto(
+                null,
+                null,
+                null,
+                null,
+                from,
+                to,
+                status
+        );
+        return employeeRepository.countBySearchCondition(employeeSearchConditionDto);
     }
 }
