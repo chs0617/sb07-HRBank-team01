@@ -19,6 +19,8 @@ import com.codeit_team01.sb07_hrbank_team01.file.dto.FileResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
 import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.service.MetaFileService;
+import com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.HistoryEmployeeCopyDto;
+import com.codeit_team01.sb07_hrbank_team01.history.service.HistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DepartmentRepository departmentRepository;
     private final MetaFileRepository metaFileRepository;
     private final MetaFileService metaFileService;
+    private final HistoryService historyService; //test
 
     @Override
     @Transactional
@@ -85,6 +88,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .build();
 
         Employee save = employeeRepository.save(newEmployee);
+
+        historyService.createHistory(save,null);//test
         return employeeMapper.toDto(save);
     }
 
@@ -95,6 +100,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                                               Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일치하는 사원이 없습니다."));
+
+        HistoryEmployeeCopyDto beforeEmployee = HistoryEmployeeCopyDto.from(employee);//test
 
         if (!employee.getEmail().equalsIgnoreCase(employeeUpdateRequestDto.email()) &&
                 employeeRepository.existsByEmailIgnoreCaseAndIdNot(
@@ -126,7 +133,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeUpdateRequestDto.status() != null) {
             employee.changeStatus(employeeUpdateRequestDto.status());
         }
-
+        historyService.updateHistory(beforeEmployee, employee,null);//test
         return employeeMapper.toDto(employee);
     }
 
@@ -135,6 +142,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
+        historyService.createHistory(employee,null);//test
         employeeRepository.delete(employee);
     }
 
