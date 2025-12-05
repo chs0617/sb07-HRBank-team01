@@ -5,9 +5,12 @@ import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchP
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSearchConditionDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSortCondition;
 import com.codeit_team01.sb07_hrbank_team01.employee.dto.request.EmployeeSortDirection;
+import com.codeit_team01.sb07_hrbank_team01.employee.dto.response.EmployeeDistributionResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
+import com.codeit_team01.sb07_hrbank_team01.employee.entity.EmployeeStatus;
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.QEmployee;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -102,6 +106,60 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
                 .fetchOne();
 
         return countQuery != null ? countQuery : 0L;
+    }
+
+    @Override
+    public List<EmployeeDistributionResponseDto> findDistribution(String groupBy, EmployeeStatus status) {
+        QEmployee employee = QEmployee.employee;
+        QDepartment department = QDepartment.department;
+
+        String group = (groupBy == null || groupBy.isEmpty()) ?
+                "department" : groupBy.toLowerCase();
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if(status != null) {
+            builder.and(employee.status.eq(status));
+        }
+
+        List<Tuple> rows;
+
+        if("department".equals(group)) {
+            rows = jpaQueryFactory
+                    .select(department.name.coalesce("UNKNOWN"),
+                            employee.count())
+                    .from(employee)
+                    .leftJoin(employee.department, department)
+                    .where(builder)
+                    .groupBy(department.name)
+                    .fetch();
+        } else if("position".equals(group)) {
+            rows = jpaQueryFactory
+                    .select(employee.jobPosition.coalesce("UNKNOWN"),
+                            employee.count())
+                    .from(employee)
+                    .leftJoin(employee.department, department)
+                    .where(builder)
+                    .groupBy(employee.jobPosition)
+                    .fetch();
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 정렬입니다.");
+        }
+
+        long total = rows.stream()
+                .mapToLong(row -> row.get(1, Long.class))
+                .sum();
+
+        return rows.stream()
+                .map(row -> {
+                    String key = row.get(0, String.class);
+                    long count = row.get(1, Long.class);
+                    double percentage = total > 0 ?
+                            (count*100.0) / total : 0.0;
+                    return new EmployeeDistributionResponseDto(key, count, percentage);
+                })
+                .sorted(Comparator.comparingLong(
+                        EmployeeDistributionResponseDto::count).reversed())
+                .toList();
     }
 
     private BooleanBuilder buildSearch(EmployeeSearchConditionDto employeeSearchConditionDto,
