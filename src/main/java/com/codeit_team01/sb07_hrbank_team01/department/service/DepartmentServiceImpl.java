@@ -12,7 +12,6 @@ import com.codeit_team01.sb07_hrbank_team01.department.response.DepartmentRespon
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -126,10 +125,20 @@ public class DepartmentServiceImpl implements DepartmentService {
             nextIdAfter = last.getId();
         }
 
-        // Page<DepartmentResponseDto>로 감싸서 매퍼에 전달
-        Page<DepartmentResponseDto> mapped = new PageImpl<>(contents, pageable, page.getTotalElements());
 
-        return pageResponseMapper.toPageResponseDto(mapped, nextCursor, nextIdAfter);
+        int size = req.size();
+        int numberOfElements = page.getNumberOfElements();
+        boolean hasNext = (numberOfElements == size);
+        long totalElements = page.getTotalElements();
+
+        return new PageResponseDto<>(
+                contents,
+                nextCursor,
+                nextIdAfter,
+                size,
+                totalElements,
+                hasNext
+        );
     }
 
 

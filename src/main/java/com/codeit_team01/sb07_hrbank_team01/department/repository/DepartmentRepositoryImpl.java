@@ -5,8 +5,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDate;
 
@@ -68,16 +68,16 @@ public class DepartmentRepositoryImpl implements DepartmentRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        //
-        var countQuery = queryFactory
+
+        Long total = queryFactory
                 .select(department.count())
                 .from(department)
                 .where(keyword == null ? null :
                         department.name.containsIgnoreCase(keyword)
                                 .or(department.description.containsIgnoreCase(keyword))
-                );
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+                )
+                .fetchOne();
+        return new PageImpl<>(content, pageable, total == null ? 0L : total);
     }
 
     //커서가없으면 아무것도 안한다
