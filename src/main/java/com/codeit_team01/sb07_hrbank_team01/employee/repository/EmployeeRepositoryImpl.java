@@ -152,7 +152,8 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
         return rows.stream()
                 .map(row -> {
                     String key = row.get(0, String.class);
-                    long count = row.get(1, Long.class);
+                    Long cnt = row.get(1, Long.class);
+                    long count = cnt != null ? cnt : 0L;
                     double percentage = total > 0 ?
                             (count*100.0) / total : 0.0;
                     return new EmployeeDistributionResponseDto(key, count, percentage);
