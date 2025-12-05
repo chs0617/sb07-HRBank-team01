@@ -2,13 +2,13 @@ package com.codeit_team01.sb07_hrbank_team01.history.repository;
 
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.HistorySearchCondition;
-import com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.HistorySearchCondition.HistorySortType;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryChangeLogDto;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
-import com.codeit_team01.sb07_hrbank_team01.history.uils.CursorUtils;
+import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +25,8 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     @Override
     public PageResponseDto<HistoryChangeLogDto> searchHistoriesWithCursor(HistorySearchCondition condition) {
         int pageSize = condition.getPageSize();
-        HistorySortType sortType = condition.getSortTypeOrDefault();
+        String sortField = condition.getSortField();
+        boolean asc = condition.isAscending();
 
         //데이터 조회
         List<History> histories = queryFactory
@@ -36,12 +37,12 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                         employeeNumberContains(condition.getEmployeeNo()),
                         memoContains(condition.getMemo()),
                         ipAddressContains(condition.getIpAddress()),
-                        createAtBetween(condition.getStartDate(), condition.getEndDate()),
+                        createAtBetween(condition.getAtFrom(), condition.getAtTo()),
                         typeEquals(condition.getType()),
                         //커서조건
-                        cursorCondition(condition.getCursorId(), sortType)
+                        cursorCondition(condition.getCursorId(), asc)
                 )
-                .orderBy(getOrderSpecifiers(sortType))
+                .orderBy(getOrderSpecifiers(sortField, asc))
                 .limit(pageSize + 1)
                 .fetch();
         boolean hasNext = histories.size() > pageSize;
@@ -64,7 +65,7 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                         employeeNumberContains(condition.getEmployeeNo()),
                         memoContains(condition.getMemo()),
                         ipAddressContains(condition.getIpAddress()),
-                        createAtBetween(condition.getStartDate(), condition.getEndDate()),
+                        createAtBetween(condition.getAtFrom(), condition.getAtTo()),
                         typeEquals(condition.getType())
                 )
         .fetchOne();
@@ -72,7 +73,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         // nextCursor계산
         Object nextCursor = null;
         Long nextIdAfter = null;
-
 
         if(!dtoList.isEmpty() && hasNext){
             nextIdAfter = dtoList.get(dtoList.size() - 1).id();
@@ -106,13 +106,13 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 ? null : history.ipAddress.contains(ipAddress);
     }
     //날짜 범위
-    private BooleanExpression createAtBetween(Instant startDate, Instant endDate) {
-        if(startDate != null && endDate != null){
-            return history.createdAt.between(startDate, endDate);
-        }else if(startDate != null){
-            return history.createdAt.goe(startDate);
-        }else if(endDate != null){
-            return history.createdAt.loe(endDate);
+    private BooleanExpression createAtBetween(Instant atFrom, Instant atTo) {
+        if(atFrom != null && atTo != null){
+            return history.createdAt.between(atFrom, atTo);
+        }else if(atFrom != null){
+            return history.createdAt.goe(atFrom);
+        }else if(atTo != null){
+            return history.createdAt.loe(atTo);
         }
         return null;
     }
@@ -121,35 +121,17 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     }
 
     //커서 조건
-    private BooleanExpression cursorCondition(Long cursorId, HistorySortType sortType) {
-        if(cursorId == null){
-            return null;
-        }
-        return switch(sortType){
-            case TIME_DESC, IP_DESC -> history.id.lt(cursorId);
-            case TIME_ASC, IP_ASC -> history.id.eq(cursorId);
-        };
+    private BooleanExpression cursorCondition(Long cursorId, boolean asc) {
+        return cursorId == null ? null : (asc ? history.id.gt(cursorId) : history.id.lt(cursorId));
     }
 
     //정렬 조건 생성
-    private OrderSpecifier<?>[] getOrderSpecifiers(HistorySortType sortType) {
-        return switch(sortType){
-            case TIME_DESC -> new OrderSpecifier<?>[]{
-                    history.createdAt.desc(),
-                    history.id.desc()
-            };
-            case TIME_ASC -> new OrderSpecifier<?>[]{
-                    history.createdAt.asc(),
-                    history.id.asc()
-            };
-            case IP_DESC -> new OrderSpecifier<?>[]{
-                    history.ipAddress.desc(),
-                    history.id.desc()
-            };
-            case IP_ASC -> new OrderSpecifier<?>[]{
-                    history.ipAddress.asc(),
-                    history.id.asc()
-            };
+    private OrderSpecifier<?>[] getOrderSpecifiers(String sortField, boolean asc) {
+        ComparableExpressionBase<?> field = "ipAddress".equals(sortField)
+                ? history.ipAddress : history.createdAt;
+        return new OrderSpecifier<?>[] {
+                asc ? field.asc() : field.desc(),
+                asc ? history.id.asc() : history.id.desc()
         };
     }
 }

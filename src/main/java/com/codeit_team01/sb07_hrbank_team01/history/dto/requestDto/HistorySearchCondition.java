@@ -13,20 +13,13 @@ public class HistorySearchCondition {
     private String employeeNo;
     private String memo;
     private String ipAddress;
-    private Instant startDate;
-    private Instant endDate;
+    private Instant atFrom;
+    private Instant atTo;
     private HistoryType type;
 
     // 정렬 타입
-    private HistorySortType sortType;
-
-    //정렬 타입 정의
-    public enum HistorySortType{
-        TIME_ASC,
-        TIME_DESC,
-        IP_ASC,
-        IP_DESC
-    }
+    private String sortField;
+    private String sortDirection;
 
     //커서ID
     private Long cursorId;
@@ -36,8 +29,16 @@ public class HistorySearchCondition {
     public int getPageSize(){
         return (size != null && size > 0) ? size : 10;
     }
-    //정렬타입반환
-    public HistorySortType getSortTypeOrDefault(){
-        return sortType != null ? sortType : HistorySortType.TIME_DESC;
+
+    // sortFiled기본값
+    public String getSortField() {
+        return (sortField != null) ? sortField : "at";
+    }
+    public String getSortDirection() {
+        return (sortDirection != null) ? sortDirection : "desc";
+    }
+
+    public boolean isAscending() {
+        return "asc".equalsIgnoreCase(getSortDirection());
     }
 }
