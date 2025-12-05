@@ -55,7 +55,7 @@ public class BackupRepositoryImpl implements BackupRepositoryCustom {
                 )
                 .orderBy(mainSort, idSort)
                 .limit(pageSize + 1)
-                .fetch(); // fetch: limit처럼 원하는 행의 개수 설정하는 옵션
+                .fetch(); // fetch: 쿼리 실행
 
         // 5. hasNext 판단 및 데이터 자르기
         boolean hasNext = false;
