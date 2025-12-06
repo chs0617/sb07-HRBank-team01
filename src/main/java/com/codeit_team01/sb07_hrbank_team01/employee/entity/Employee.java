@@ -51,7 +51,7 @@ public class Employee extends BaseUpdateEntity {
             throw new IllegalArgumentException("이메일이 null이거나 empty면 안됩니다.");
         }
         this.name = name;
-        this.email = email.toLowerCase();
+        this.email = email; //.toLowerCase();
         this.jobPosition = jobPosition;
         this.department = department;
         this.hireDate = hireDate;
@@ -66,7 +66,7 @@ public class Employee extends BaseUpdateEntity {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("이메일이 null이거나 empty면 안됩니다.");
         }
-        this.email = email.toLowerCase();
+        this.email = email; //.toLowerCase();
         this.name = name;
         this.jobPosition = jobPosition;
         this.department = department;
