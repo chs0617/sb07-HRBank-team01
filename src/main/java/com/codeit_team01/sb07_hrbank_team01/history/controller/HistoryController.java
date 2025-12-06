@@ -7,7 +7,7 @@ import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryDiffD
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
 import com.codeit_team01.sb07_hrbank_team01.history.repository.HistoryRepository;
 import com.codeit_team01.sb07_hrbank_team01.history.service.HistoryService;
-import com.codeit_team01.sb07_hrbank_team01.history.uils.CursorUtils;
+import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,26 +27,17 @@ public class HistoryController {
 
     //전체 이력 목록 조회
     @GetMapping
-    public ResponseEntity<PageResponseDto<HistoryChangeLogDto>> getAllHistories(
-            @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "10") Integer size
-    ) {
-        PageResponseDto<HistoryChangeLogDto> response = historyService.getAllHistories(cursor, size);
-        return ResponseEntity.ok(response);
-    }
-
-    //이력 검색(다양한 조건)
-    @GetMapping("/search")
     public ResponseEntity<PageResponseDto<HistoryChangeLogDto>> searchHistories(
-            @RequestParam(required = false) String employeeNumber,
-            @RequestParam(required = false) String memo,
+            @RequestParam(required = false) String employeeNumber,//
+            @RequestParam(required = false) String memo,//
             @RequestParam(required = false) String ipAddress,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)Instant startDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)Instant atFrom,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)Instant atTo,
             @RequestParam(required = false) HistoryType type,
-            @RequestParam(required = false) HistorySortType sortType,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortDirection,
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "10") Integer size
             ){
@@ -54,16 +45,18 @@ public class HistoryController {
                 .employeeNo(employeeNumber)
                 .memo(memo)
                 .ipAddress(ipAddress)
-                .startDate(startDate)
-                .endDate(endDate)
+                .atFrom(atFrom)
+                .atTo(atTo)
                 .type(type)
-                .sortType(sortType)
+                .sortField(sortField)
+                .sortDirection(sortDirection)
                 .cursorId(CursorUtils.decodeCursor(cursor))
                 .size(size)
                 .build();
         PageResponseDto<HistoryChangeLogDto> response = historyService.searchHistories(condition);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("{id}/diffs")
     public ResponseEntity<List<HistoryDiffDto>> getHistoryDetails(
             @PathVariable("id") Long historyId

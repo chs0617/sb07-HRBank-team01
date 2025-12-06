@@ -10,17 +10,16 @@ import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryDiffD
 import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
 import com.codeit_team01.sb07_hrbank_team01.history.repository.HistoryRepository;
-import com.codeit_team01.sb07_hrbank_team01.history.uils.CursorUtils;
-import com.sun.net.httpserver.HttpsServer;
+import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +35,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_CREATE, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.CREATED, employee, memo, ipAddress);
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, null, employee);
@@ -51,7 +50,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_UPDATE, afterEmployee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.UPDATED, afterEmployee, memo, ipAddress);
 
         // 수정할 필드 추가
         addChangedEmployeeDetails(history, beforeEmployee, afterEmployee);
@@ -66,7 +65,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.EMPLOYEE_DELETE, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.DELETED, employee, memo, ipAddress);
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, employee, null);
@@ -110,13 +109,16 @@ public class HistoryServiceImpl implements HistoryService {
     public Long getTotalCount() {
         return historyRepository.count();
     }
-
     // Helper 메서드 : 생성, 삭제 이력
     private void addAllEmployeeDetail(History history, Employee beforeEmployee, Employee afterEmployee) {
         history.addDetail(
                 "입사일",
-                beforeEmployee != null ? beforeEmployee.getHireDate().toString() : null,
-                afterEmployee != null ? afterEmployee.getHireDate().toString() : null
+                beforeEmployee != null
+                        ? beforeEmployee.getHireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate().toString()
+                        : null,
+                afterEmployee != null
+                        ? afterEmployee.getHireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate().toString()
+                        : null
         );
         history.addDetail(
                 "이름",
@@ -154,7 +156,9 @@ public class HistoryServiceImpl implements HistoryService {
     private void addChangedEmployeeDetails(
             History history, HistoryEmployeeCopyDto before, Employee after
     ) {
-        addDetailIfChanged(history, "입사일", before.hireDate(), after.getHireDate());
+        addDetailIfChanged(history, "입사일",
+                before.hireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate(),
+                after.getHireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate().toString());
         addDetailIfChanged(history, "이름", before.name(), after.getName());
         addDetailIfChanged(history, "직함", before.jobPosition(), after.getJobPosition());
         addDetailIfChanged(history, "부서명", before.department(), after.getDepartment().getName());

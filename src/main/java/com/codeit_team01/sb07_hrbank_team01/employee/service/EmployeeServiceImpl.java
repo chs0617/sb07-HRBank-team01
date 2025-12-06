@@ -89,7 +89,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee save = employeeRepository.save(newEmployee);
 
-        historyService.createHistory(save,null);//test
+        historyService.createHistory(save,employeeCreateRequestDto.memo());//test
         return employeeMapper.toDto(save);
     }
 
@@ -133,7 +133,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeUpdateRequestDto.status() != null) {
             employee.changeStatus(employeeUpdateRequestDto.status());
         }
-        historyService.updateHistory(beforeEmployee, employee,null);//test
+        historyService.updateHistory(beforeEmployee, employee,employeeUpdateRequestDto.memo());//test
         return employeeMapper.toDto(employee);
     }
 
@@ -142,7 +142,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없습니다."));
-        historyService.createHistory(employee,null);//test
+        historyService.deleteHistory(employee,null);//test
         employeeRepository.delete(employee);
     }
 
