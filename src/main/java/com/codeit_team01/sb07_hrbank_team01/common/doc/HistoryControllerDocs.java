@@ -59,7 +59,7 @@ public interface HistoryControllerDocs {
             @RequestParam(required = false) HistoryType type,
             @RequestParam(required = false) String sortField,
             @RequestParam(required = false) String sortDirection,
-            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") Integer size
     );
 
