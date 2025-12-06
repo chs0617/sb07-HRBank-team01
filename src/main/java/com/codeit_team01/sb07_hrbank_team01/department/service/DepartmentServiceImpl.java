@@ -1,6 +1,8 @@
 package com.codeit_team01.sb07_hrbank_team01.department.service;
 
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.CustomException;
+import com.codeit_team01.sb07_hrbank_team01.common.exception.ErrorCode;
 import com.codeit_team01.sb07_hrbank_team01.common.mapper.PageResponseMapper;
 import com.codeit_team01.sb07_hrbank_team01.department.entity.Department;
 import com.codeit_team01.sb07_hrbank_team01.department.mapper.DepartmentResponseMapper;
@@ -18,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 
 @RequiredArgsConstructor
@@ -35,7 +36,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentResponseDto createDepartment(DepartmentCreateRequestDto request) {
         boolean exist = departmentRepository.existsByName(request.name());
         if(exist){
-            throw new IllegalArgumentException("이미 존재하는 부서 이름입니다: " + request.name());
+            throw new CustomException(ErrorCode.DEP_DUPLICATE_NAME,
+                    "작성하신 부서명 :" + request.name());
         }
         Department department = Department.of(request.name(), request.description(), request.establishedDate());
 
@@ -50,36 +52,42 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentResponseDto updateDepartment(Long departmentId, DepartmentUpdateRequestDto request) {
 
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new NoSuchElementException("부서를 찾을 수 없습니다: " + departmentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DEP_NOT_FOUND,
+                        "부서 ID :" + departmentId));
 
         if (!department.getName().equals(request.name())
                 && departmentRepository.existsByName(request.name())) {
-            throw new IllegalArgumentException("이미 존재하는 부서 이름입니다: " + request.name());
+            throw new CustomException(ErrorCode.DEP_DUPLICATE_NAME,
+                    "작성하신 부서명 :" + request.name());
         }
 
         department.update(request.name(), request.description(), request.establishedDate());
 
-        int employeeCount = (int) employeeRepository.countByDepartmentId(department.getId());
+        int employeeCount =  employeeRepository.countByDepartmentId(department.getId());
 
         return departmentResponseMapper.toDto(department, employeeCount);
     }
+
 
     @Override
     @Transactional
     public void deleteDepartment(Long departmentId) {
         if (!departmentRepository.existsById(departmentId)) {
-            throw new NoSuchElementException("부서 아이디로 찾을 수 없습니다");
+            throw new CustomException(ErrorCode.DEP_NOT_FOUND,
+                    " 부서Id :" + departmentId);
         }
 
         departmentRepository.deleteById(departmentId);
 
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public DepartmentResponseDto getDepartment(Long departmentId) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new NoSuchElementException("부서 아이디로 찾을수 없습니다"));
+                .orElseThrow(() ->  new CustomException(ErrorCode.DEP_NOT_FOUND,
+                        "부서 ID :" + departmentId));
 
         int employeeCount = (int) employeeRepository.countByDepartmentId(department.getId());
 
