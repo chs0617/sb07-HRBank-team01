@@ -23,27 +23,6 @@ import java.util.List;
 
 @Tag(name = "직원 정보 수정 이력 관리", description = "직원 정보 수정 이력 관리 API")
 public interface HistoryControllerDocs {
-    @Operation(
-            summary = "전체 변경 이력 조회",
-            description = "커서 기반 페이지네이션으로 전체 변경 이력 목록을 조회합니다.",
-            parameters = {
-                    @Parameter(name = "cursor", description = "커서 (마지막 조회 기준)"),
-                    @Parameter(name = "size", description = "페이지 크기", schema = @Schema(defaultValue = "10"))
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "조회 성공",
-                            content = @Content(schema = @Schema(implementation = PageResponseDto.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청",
-                            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-                    @ApiResponse(responseCode = "500", description = "서버 오류",
-                            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-            }
-    )
-    public ResponseEntity<PageResponseDto<HistoryChangeLogDto>> getAllHistories(
-            @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "10") Integer size
-    );
-
 
     @Operation(
             summary = "변경 이력 검색",
@@ -52,10 +31,11 @@ public interface HistoryControllerDocs {
                     @Parameter(name = "employeeNumber", description = "사원 번호"),
                     @Parameter(name = "memo", description = "메모 내용"),
                     @Parameter(name = "ipAddress", description = "IP 주소"),
-                    @Parameter(name = "startDate", description = "검색 시작 시각 (ISO-8601)", schema = @Schema(format = "date-time")),
-                    @Parameter(name = "endDate", description = "검색 종료 시각 (ISO-8601)", schema = @Schema(format = "date-time")),
+                    @Parameter(name = "atFrom", description = "검색 시작 시각 (ISO-8601)", schema = @Schema(format = "date-time")),
+                    @Parameter(name = "atTo", description = "검색 종료 시각 (ISO-8601)", schema = @Schema(format = "date-time")),
                     @Parameter(name = "type", description = "이력 타입", schema = @Schema(implementation = HistoryType.class)),
-                    @Parameter(name = "sortType", description = "정렬 기준", schema = @Schema(implementation = HistorySearchCondition.HistorySortType.class)),
+                    @Parameter(name = "sortField", description = "정렬 기준", schema = @Schema(implementation = HistorySearchCondition.class)),
+                    @Parameter(name = "cursor", description = "커서 (마지막 조회 기준)"),
                     @Parameter(name = "cursor", description = "커서 (마지막 조회 기준)"),
                     @Parameter(name = "size", description = "페이지 크기", schema = @Schema(defaultValue = "10"))
             },
@@ -77,7 +57,8 @@ public interface HistoryControllerDocs {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate,
             @RequestParam(required = false) HistoryType type,
-            @RequestParam(required = false) HistorySearchCondition.HistorySortType sortType,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortDirection,
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "10") Integer size
     );
