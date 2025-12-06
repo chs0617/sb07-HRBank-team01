@@ -18,7 +18,7 @@ public class CursorUtils {
         }
         try{
             String decoded = new String(Base64.getDecoder().decode(cursor));
-            String idStr = decoded.replace("[^0-9]", "");
+            String idStr = decoded.replaceAll("[^0-9]", "");
             return Long.parseLong(idStr);
         } catch(Exception e){
             return null;
