@@ -1,5 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.history.controller;
 
+import com.codeit_team01.sb07_hrbank_team01.common.doc.HistoryControllerDocs;
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.HistorySearchCondition;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryChangeLogDto;
@@ -21,7 +22,7 @@ import static com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.Histor
 @RestController
 @RequestMapping("/api/change-logs")
 @RequiredArgsConstructor
-public class HistoryController {
+public class HistoryController implements HistoryControllerDocs {
     private final HistoryRepository historyRepository;
     private final HistoryService historyService;
 
