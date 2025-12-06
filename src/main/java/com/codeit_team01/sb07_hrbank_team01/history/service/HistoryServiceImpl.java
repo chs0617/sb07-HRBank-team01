@@ -73,17 +73,6 @@ public class HistoryServiceImpl implements HistoryService {
         historyRepository.save(history);
     }
 
-    // 전체 조회
-    @Transactional(readOnly = true)
-    @Override
-    public PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size) {
-        HistorySearchCondition condition = HistorySearchCondition.builder()
-                .cursorId(CursorUtils.decodeCursor(cursor))
-                .size(size)
-                .build();
-        return historyRepository.searchHistoriesWithCursor(condition);
-    }
-
     // 상세 이력 조회
     @Transactional(readOnly = true)
     @Override
@@ -97,6 +86,7 @@ public class HistoryServiceImpl implements HistoryService {
                 .toList();
     }
 
+    // 전체 조회
     // 조건 조회
     @Transactional(readOnly = true)
     @Override
