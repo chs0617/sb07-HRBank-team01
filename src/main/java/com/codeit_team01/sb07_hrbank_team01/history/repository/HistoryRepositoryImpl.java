@@ -45,9 +45,11 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 .orderBy(getOrderSpecifiers(sortField, asc))
                 .limit(pageSize + 1)
                 .fetch();
+
+        //다음 페이지 존재 여부 판단
         boolean hasNext = histories.size() > pageSize;
 
-        //실제 반환 데이터
+        //실제 반환 데이터 (pageSize만큼만 잘라냄)
         List<History> content = hasNext ? histories.subList(0, pageSize) : histories;
 
         // DTO변환
@@ -70,11 +72,11 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 )
         .fetchOne();
 
-        // nextCursor계산
+        // 다음 커서 계산
         Object nextCursor = null;
         Long nextIdAfter = null;
 
-        if(!dtoList.isEmpty() && hasNext){
+        if(hasNext && !dtoList.isEmpty()){
             nextIdAfter = dtoList.get(dtoList.size() - 1).id();
             nextCursor = CursorUtils.encodeCursor(nextIdAfter);
         }
@@ -84,7 +86,7 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 dtoList,
                 nextCursor,
                 nextIdAfter,
-                pageSize,
+                dtoList.size(),
                 totalElements != null ? totalElements : 0L,
                 hasNext
         );
