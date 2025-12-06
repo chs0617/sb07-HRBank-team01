@@ -40,7 +40,7 @@ public class Employee extends BaseUpdateEntity {
     @JoinColumn(name = "profile_id")
     private MetaFile profile;
 
-    @Column(name = "employee_no", nullable = false, unique = true, length = 50)
+    @Column(name = "employee_no", unique = true, length = 50)
     private String employeeNo;
 
     @Builder
@@ -76,5 +76,8 @@ public class Employee extends BaseUpdateEntity {
 
     public void changeStatus(EmployeeStatus status) {
         this.status = status;
+    }
+    public void updateEmployeeNo(String employeeNo) {
+        this.employeeNo = employeeNo;
     }
 }

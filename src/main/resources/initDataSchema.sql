@@ -13,7 +13,7 @@ CREATE TABLE employees (
                            hire_date       timestamp       NOT NULL,
                            status          varchar(30)     NOT NULL,
                            profile_id      bigint,
-                           employee_no     varchar(50)     NOT NULL UNIQUE
+                           employee_no     varchar(50)     UNIQUE
 );
 
 -- 부서
@@ -87,8 +87,3 @@ ALTER TABLE backups
 ALTER TABLE history_details
     ADD CONSTRAINT fk_history_details_history
         FOREIGN KEY (history_id) REFERENCES employee_histories(id);
-
-CREATE SEQUENCE employee_global_number
-    START WITH 1
-    INCREMENT BY 1;
-
