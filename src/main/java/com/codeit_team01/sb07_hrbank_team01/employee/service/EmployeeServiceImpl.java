@@ -255,15 +255,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         List<LocalDate> localDates = buildUnitDates(fromDate, toDate, unitValue);
         List<EmployeeTrendResponseDto> result = new ArrayList<>();
-        Long prevCount = null;
+        long prevCount = -1;
         for (LocalDate localDate : localDates) {
-            Long count = grouped.getOrDefault(localDate, 0L);
+            long count = grouped.getOrDefault(localDate, 0L);
 
-            Long charge = null;
-            Double chargeRate = null;
-            if (prevCount != null) {
+            long charge = 0;
+            double chargeRate = 0.0;
+            if (prevCount >= 0) {
                 charge = count - prevCount;
-                if (prevCount != 0) {
+                if (prevCount > 0) {
                     chargeRate = (charge * 100.0) / prevCount;
                 }
             }

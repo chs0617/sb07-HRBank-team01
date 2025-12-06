@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public record EmployeeTrendResponseDto(
         LocalDate date,
         long count,
-        Long charge,
-        Double chargeRate
+        long change,
+        double changeRate
 ) {
 }
