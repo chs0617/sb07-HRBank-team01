@@ -16,7 +16,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/backups")
 @RequiredArgsConstructor
-public class BackupController {
+public class BackupController{
 
   private final BackupService backupService;
 

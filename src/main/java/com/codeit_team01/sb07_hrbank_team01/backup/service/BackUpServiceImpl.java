@@ -83,12 +83,8 @@ public class BackUpServiceImpl implements BackupService {
         // 현재 csv쪽 서비스나 아직 구성된게 없기 때문에 null로 구성된 파일을 넣는다.
         MetaFile file = null;
         try {
-            throw new Exception();
-//            file = employeeBackupService.backupEmployeesToCsv(backup.getId());
+            file = employeeBackupService.backupEmployeesToCsv(backup.getId());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("\"aaaaaaaaaaaaa\" = " + "aaaaaaaaaaaaa");
-
             MetaFile logFile = generateErrorLogFile(backup.getId(), e);
             backup.update(worker, BackupStatus.FAILED, startTime, Instant.now(), logFile);
             backupRepository.save(backup);
@@ -96,14 +92,15 @@ public class BackUpServiceImpl implements BackupService {
             return backupMapper.toDto(backup);
         }
 
-//        backup.update(worker, BackupStatus.COMPLETED, startTime, Instant.now(), file);
-//        backupRepository.save(backup);
-//
-//        return backupMapper.toDto(backup);
+        backup.update(worker, BackupStatus.COMPLETED, startTime, Instant.now(), file);
+        backupRepository.save(backup);
+
+        return backupMapper.toDto(backup);
 
     }
 
     @Override
+    @Transactional
     public PageResponseDto<BackupResponseDto> getBackupPageList(BackupRequestDto backupRequestDto) {
 
         // 1. Repository 호출 (Querydsl로 구현된 findBackupPage 실행)
@@ -118,11 +115,9 @@ public class BackUpServiceImpl implements BackupService {
             List<Backup> content = backupPage.getContent();
             Backup lastBackup = content.get(content.size() - 1);
 
-            String cursor = backupRequestDto.cursor();
+            String cursor = backupRequestDto.sortField();
 
             // cursor가 없다면, 이전 정렬필드로부터 다음 커서 가져오도록 보정
-            if (cursor == null) cursor = backupRequestDto.sortField();
-
             //  Keyset Pagination의 다음 커서 값 설정
             //  기본 정렬 필드: startedAt
 
@@ -138,8 +133,10 @@ public class BackUpServiceImpl implements BackupService {
         Page<BackupResponseDto> backupPageDto = backupPage
                 .map(backupMapper::toDto);
 
+        long total = backupRepository.countTotalElements(backupRequestDto.worker(), backupRequestDto.status(), backupRequestDto.startedAtTo(), backupRequestDto.startedAtFrom());
+
         // 3. PageResponseDto로 변환하여 반환
-        return pageResponseMapper.toPageResponseDto(backupPageDto, nextCursor, nextIdAfter);
+        return pageResponseMapper.toPageResponseDto(backupPageDto, nextCursor, nextIdAfter, total);
     }
 
     @Override

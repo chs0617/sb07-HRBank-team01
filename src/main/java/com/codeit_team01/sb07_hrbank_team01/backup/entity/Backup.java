@@ -17,13 +17,13 @@ public class Backup extends BaseUpdateEntity {
   @Column(name = "worker", nullable = false, length = 50)
   private String worker;
 
-  @Column(name = "start_time", nullable = false)
+  @Column(name = "start_time")
   private Instant startTime;
 
-  @Column(name = "end_time", nullable = false)
+  @Column(name = "end_time")
   private Instant endTime;
 
-  @Column(name = "status", nullable = false, length = 30)
+  @Column(name = "status", length = 30)
   @Enumerated(EnumType.STRING)
   private BackupStatus status;
 
@@ -55,16 +55,4 @@ public class Backup extends BaseUpdateEntity {
       this.metaFile = metaFile;
     }
   }
-
-    @Override
-    public String toString() {
-        return "Backup{" +
-                "id = " + this.getId() +
-                "worker='" + worker + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", status=" + status +
-                ", metaFile=" + metaFile +
-                '}';
-    }
 }
