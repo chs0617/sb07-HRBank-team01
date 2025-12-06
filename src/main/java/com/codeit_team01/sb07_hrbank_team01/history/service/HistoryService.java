@@ -21,6 +21,9 @@ public interface HistoryService {
     // 직원 삭제 이력 등록
     void deleteHistory(Employee employee, String memo); //, HttpServletRequest request
 
+    // 이력 조회
+    PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size);
+
     // 이력 상세 조회
     List<HistoryDiffDto> getHistoryDetail(Long historyId);
 
