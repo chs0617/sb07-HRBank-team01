@@ -22,7 +22,7 @@ public interface HistoryService {
     void deleteHistory(Employee employee, String memo); //, HttpServletRequest request
 
     // 이력 조회
-    PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size);
+//    PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size);
 
     // 이력 상세 조회
     List<HistoryDiffDto> getHistoryDetail(Long historyId);

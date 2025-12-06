@@ -1,16 +1,19 @@
 package com.codeit_team01.sb07_hrbank_team01.history.repository;
 
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
+import com.codeit_team01.sb07_hrbank_team01.common.mapper.PageResponseMapper;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.requestDto.HistorySearchCondition;
 import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryChangeLogDto;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
-import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,12 +24,20 @@ import static com.codeit_team01.sb07_hrbank_team01.history.entity.QHistory.histo
 @RequiredArgsConstructor
 public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     private final JPAQueryFactory queryFactory;
+    private final PageResponseMapper pageResponseMapper;
 
     @Override
     public PageResponseDto<HistoryChangeLogDto> searchHistoriesWithCursor(HistorySearchCondition condition) {
         int pageSize = condition.getPageSize();
         String sortField = condition.getSortField();
         boolean asc = condition.isAscending();
+
+        // ✅ 디버깅 로그 추가
+        System.out.println("========== 페이지 조회 시작 ==========");
+        System.out.println("받은 cursorId: " + condition.getCursorId());
+        System.out.println("pageSize: " + pageSize);
+        System.out.println("정렬 방향: " + (asc ? "오름차순" : "내림차순"));
+
 
         //데이터 조회
         List<History> histories = queryFactory
@@ -48,6 +59,8 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
 
         //다음 페이지 존재 여부 판단
         boolean hasNext = histories.size() > pageSize;
+        System.out.println("조회된 개수: " + histories.size() + ", pageSize: " + pageSize + ", hasNext: " + hasNext);
+
 
         //실제 반환 데이터 (pageSize만큼만 잘라냄)
         List<History> content = hasNext ? histories.subList(0, pageSize) : histories;
@@ -56,6 +69,8 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         List<HistoryChangeLogDto> dtoList = content.stream()
                 .map(HistoryChangeLogDto::from)
                 .toList();
+// 2. 실제 반환 데이터 확인
+        System.out.println("반환 데이터 크기: " + dtoList.size());
 
         //전체 개수 조회
         Long totalElements = queryFactory
@@ -70,18 +85,20 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                         createAtBetween(condition.getAtFrom(), condition.getAtTo()),
                         typeEquals(condition.getType())
                 )
-        .fetchOne();
+                .fetchOne();
 
         // 다음 커서 계산
-        Object nextCursor = null;
+        Long nextCursor = null;
         Long nextIdAfter = null;
 
-        if(hasNext && !dtoList.isEmpty()){
+        if (hasNext && !dtoList.isEmpty()) {
             nextIdAfter = dtoList.get(dtoList.size() - 1).id();
-            nextCursor = CursorUtils.encodeCursor(nextIdAfter);
+            nextCursor = nextIdAfter;
         }
+// 3. nextCursor 확인
+        System.out.println("nextCursor: " + nextCursor + ", nextIdAfter: " + nextIdAfter);
 
-        //PageResponseDto
+        //Spring Data Page 객체로 변환
         return new PageResponseDto<>(
                 dtoList,
                 nextCursor,
@@ -90,6 +107,7 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 totalElements != null ? totalElements : 0L,
                 hasNext
         );
+
     }
 
     //사번 부분 일치
@@ -97,27 +115,31 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         return (employeeNumber == null || employeeNumber.isBlank())
                 ? null : employee.employeeNo.contains(employeeNumber);
     }
+
     //메모 부분 일치
     private BooleanExpression memoContains(String memo) {
         return (memo == null || memo.isBlank())
                 ? null : history.memo.contains(memo);
     }
+
     //ip주소 부분 일치
     private BooleanExpression ipAddressContains(String ipAddress) {
         return (ipAddress == null || ipAddress.isBlank())
                 ? null : history.ipAddress.contains(ipAddress);
     }
+
     //날짜 범위
     private BooleanExpression createAtBetween(Instant atFrom, Instant atTo) {
-        if(atFrom != null && atTo != null){
+        if (atFrom != null && atTo != null) {
             return history.createdAt.between(atFrom, atTo);
-        }else if(atFrom != null){
+        } else if (atFrom != null) {
             return history.createdAt.goe(atFrom);
-        }else if(atTo != null){
+        } else if (atTo != null) {
             return history.createdAt.loe(atTo);
         }
         return null;
     }
+
     private BooleanExpression typeEquals(HistoryType type) {
         return type == null ? null : history.type.eq(type);
     }
@@ -131,7 +153,7 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     private OrderSpecifier<?>[] getOrderSpecifiers(String sortField, boolean asc) {
         ComparableExpressionBase<?> field = "ipAddress".equals(sortField)
                 ? history.ipAddress : history.createdAt;
-        return new OrderSpecifier<?>[] {
+        return new OrderSpecifier<?>[]{
                 asc ? field.asc() : field.desc(),
                 asc ? history.id.asc() : history.id.desc()
         };

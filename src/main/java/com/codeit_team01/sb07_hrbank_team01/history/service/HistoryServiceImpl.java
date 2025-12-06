@@ -10,7 +10,6 @@ import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryDiffD
 import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
 import com.codeit_team01.sb07_hrbank_team01.history.repository.HistoryRepository;
-import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -73,16 +72,16 @@ public class HistoryServiceImpl implements HistoryService {
         historyRepository.save(history);
     }
 
-    // 전체 조회
-    @Transactional(readOnly = true)
-    @Override
-    public PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size) {
-        HistorySearchCondition condition = HistorySearchCondition.builder()
-                .cursorId(CursorUtils.decodeCursor(cursor))
-                .size(size)
-                .build();
-        return historyRepository.searchHistoriesWithCursor(condition);
-    }
+//    // 전체 조회
+//    @Transactional(readOnly = true)
+//    @Override
+//    public PageResponseDto<HistoryChangeLogDto> getAllHistories(String cursor, Integer size) {
+//        HistorySearchCondition condition = HistorySearchCondition.builder()
+//                .cursorId(cursor)
+//                .size(size)
+//                .build();
+//        return historyRepository.searchHistoriesWithCursor(condition);
+//    }
 
     // 상세 이력 조회
     @Transactional(readOnly = true)

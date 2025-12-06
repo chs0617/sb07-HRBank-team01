@@ -39,7 +39,7 @@ public class HistoryController implements HistoryControllerDocs {
             @RequestParam(required = false) HistoryType type,
             @RequestParam(required = false) String sortField,
             @RequestParam(required = false) String sortDirection,
-            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") Integer size
             ){
         HistorySearchCondition condition = HistorySearchCondition.builder()
@@ -51,7 +51,7 @@ public class HistoryController implements HistoryControllerDocs {
                 .type(type)
                 .sortField(sortField)
                 .sortDirection(sortDirection)
-                .cursorId(CursorUtils.decodeCursor(cursor))
+                .cursorId(cursor)
                 .size(size)
                 .build();
         PageResponseDto<HistoryChangeLogDto> response = historyService.searchHistories(condition);
