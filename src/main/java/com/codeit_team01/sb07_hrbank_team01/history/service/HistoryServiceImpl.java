@@ -10,7 +10,6 @@ import com.codeit_team01.sb07_hrbank_team01.history.dto.responseDto.HistoryDiffD
 import com.codeit_team01.sb07_hrbank_team01.history.entity.History;
 import com.codeit_team01.sb07_hrbank_team01.history.entity.HistoryType;
 import com.codeit_team01.sb07_hrbank_team01.history.repository.HistoryRepository;
-import com.codeit_team01.sb07_hrbank_team01.history.utils.CursorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.CREATED, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.CREATED, memo, ipAddress, employee.getEmployeeNo());
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, null, employee);
@@ -50,7 +49,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.UPDATED, afterEmployee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.UPDATED, memo, ipAddress, afterEmployee.getEmployeeNo());
 
         // 수정할 필드 추가
         addChangedEmployeeDetails(history, beforeEmployee, afterEmployee);
@@ -65,7 +64,7 @@ public class HistoryServiceImpl implements HistoryService {
         //IP주소 자동 추출
         String ipAddress = getCurrentRequestIp();
 
-        History history = History.createHistory(HistoryType.DELETED, employee, memo, ipAddress);
+        History history = History.createHistory(HistoryType.DELETED, memo, ipAddress, employee.getEmployeeNo());
 
         // 전체 필드 추가
         addAllEmployeeDetail(history, employee, null);
@@ -99,6 +98,7 @@ public class HistoryServiceImpl implements HistoryService {
     public Long getTotalCount() {
         return historyRepository.count();
     }
+
     // Helper 메서드 : 생성, 삭제 이력
     private void addAllEmployeeDetail(History history, Employee beforeEmployee, Employee afterEmployee) {
         history.addDetail(

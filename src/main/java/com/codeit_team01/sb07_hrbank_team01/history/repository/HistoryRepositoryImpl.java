@@ -31,7 +31,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         //데이터 조회
         List<History> histories = queryFactory
                 .selectFrom(history)
-                .leftJoin(history.employee, employee).fetchJoin()
                 .where(
                         //검색 조건(AND)
                         employeeNumberContains(condition.getEmployeeNo()),
@@ -61,7 +60,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         Long totalElements = queryFactory
                 .select(history.count())
                 .from(history)
-                .leftJoin(history.employee, employee)
                 .where(
                         //커서조건 제외, 검색 조건만 허용
                         employeeNumberContains(condition.getEmployeeNo()),
