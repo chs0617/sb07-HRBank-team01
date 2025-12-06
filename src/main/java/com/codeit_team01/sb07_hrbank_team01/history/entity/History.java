@@ -1,7 +1,6 @@
 package com.codeit_team01.sb07_hrbank_team01.history.entity;
 
 import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
-import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,22 +33,20 @@ public class History extends BaseEntity {
     @Column(name = "ip_address", length = 255)
     private String ipAddress;
 
-    // 직원 사번
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    @Column(name = "employee_no", length = 50)
+    private String employeeNo;
 
     // 변경 상세 목록 (1:N)
     // details도 테이블을 갖고 있으니 DB에 관계를 맺어서 add할 필요 없게 하는 방법을 찾아보자.
     @OneToMany(mappedBy = "history", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<HistoryDetail> details = new ArrayList<>();
 
-    public static History createHistory(HistoryType type, Employee employee, String memo, String ipAddress) {
+    public static History createHistory(HistoryType type, String memo, String ipAddress, String employeeNo) {
         History history = new History();
         history.type = type;
-        history.employee = employee;
         history.memo = memo != null ? memo : type.getDefaultMemo();
         history.ipAddress = ipAddress;
+        history.employeeNo = employeeNo;
         return history;
     }
 

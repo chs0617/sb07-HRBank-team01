@@ -17,7 +17,7 @@ public record HistoryChangeLogDto(
         return new HistoryChangeLogDto(
                 history.getId(),
                 history.getType().name(),
-                history.getEmployee().getEmployeeNo(),
+                history.getEmployeeNo(),
                 history.getMemo(),
                 history.getIpAddress(),
                 history.getCreatedAt()
