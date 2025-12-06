@@ -57,22 +57,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         Department department = departmentRepository.findById(employeeCreateRequestDto.departmentId())
                 .orElseThrow(() -> new NoSuchElementException("부서를 찾을 수 없습니다."));
 
-        // WILL BE CHECK : profile 파일 관리 요구사항 확인
         MetaFile profile = null;
         if (fileCreateRequestDto != null) {
             FileResponseDto file = metaFileService.createFile(fileCreateRequestDto);
             profile = metaFileRepository.getReferenceById(file.id());
         }
-
-        long nextEmployeeNo = employeeRepository.nextEmployeeNumber();
-        int year = employeeCreateRequestDto.hireDate().getYear();
-
-        String employeeNo = String.format(
-                "%s-%d_%06d",
-                department.getName(),
-                year,
-                nextEmployeeNo
-        );
 
         Instant hireDate = employeeCreateRequestDto.hireDate()
                 .atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -82,12 +71,21 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .email(employeeCreateRequestDto.email())
                 .jobPosition(employeeCreateRequestDto.position())
                 .department(department)
-                .employeeNo(employeeNo)
                 .profile(profile)
                 .hireDate(hireDate)
                 .build();
 
         Employee save = employeeRepository.save(newEmployee);
+
+        int year = employeeCreateRequestDto.hireDate().getYear();
+        String employeeNo = String.format(
+                "%s-%d_%06d",
+                department.getName(),
+                year,
+                save.getId()
+        );
+
+        save.updateEmployeeNo(employeeNo);
 
         historyService.createHistory(save,employeeCreateRequestDto.memo());//test
         return employeeMapper.toDto(save);

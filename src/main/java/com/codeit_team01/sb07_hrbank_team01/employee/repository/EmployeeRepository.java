@@ -8,9 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
     int countByDepartmentId(Long departmentId);
     boolean existsByEmailIgnoreCase(String email);
-  
-  @Query(value = "SELECT nextval('employee_global_number')", nativeQuery = true)
-  long nextEmployeeNumber();
 
   @Query(value = "SELECT e FROM Employee e")
   Stream<Employee> streamAll();
