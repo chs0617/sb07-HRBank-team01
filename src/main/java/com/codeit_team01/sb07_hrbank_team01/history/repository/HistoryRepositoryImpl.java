@@ -32,13 +32,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         String sortField = condition.getSortField();
         boolean asc = condition.isAscending();
 
-        // ✅ 디버깅 로그 추가
-        System.out.println("========== 페이지 조회 시작 ==========");
-        System.out.println("받은 cursorId: " + condition.getCursorId());
-        System.out.println("pageSize: " + pageSize);
-        System.out.println("정렬 방향: " + (asc ? "오름차순" : "내림차순"));
-
-
         //데이터 조회
         List<History> histories = queryFactory
                 .selectFrom(history)
@@ -59,8 +52,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
 
         //다음 페이지 존재 여부 판단
         boolean hasNext = histories.size() > pageSize;
-        System.out.println("조회된 개수: " + histories.size() + ", pageSize: " + pageSize + ", hasNext: " + hasNext);
-
 
         //실제 반환 데이터 (pageSize만큼만 잘라냄)
         List<History> content = hasNext ? histories.subList(0, pageSize) : histories;
@@ -69,8 +60,6 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
         List<HistoryChangeLogDto> dtoList = content.stream()
                 .map(HistoryChangeLogDto::from)
                 .toList();
-// 2. 실제 반환 데이터 확인
-        System.out.println("반환 데이터 크기: " + dtoList.size());
 
         //전체 개수 조회
         Long totalElements = queryFactory
@@ -95,7 +84,7 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
             nextIdAfter = dtoList.get(dtoList.size() - 1).id();
             nextCursor = nextIdAfter;
         }
-// 3. nextCursor 확인
+        // 3. nextCursor 확인
         System.out.println("nextCursor: " + nextCursor + ", nextIdAfter: " + nextIdAfter);
 
         //Spring Data Page 객체로 변환
