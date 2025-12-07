@@ -9,7 +9,7 @@ import com.codeit_team01.sb07_hrbank_team01.backup.repository.BackupRepository;
 import com.codeit_team01.sb07_hrbank_team01.base.BaseEntity;
 import com.codeit_team01.sb07_hrbank_team01.common.dto.response.PageResponseDto;
 import com.codeit_team01.sb07_hrbank_team01.common.mapper.PageResponseMapper;
-import com.codeit_team01.sb07_hrbank_team01.employee.service.EmployeeBackupService;
+import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.entity.MetaFile;
 import com.codeit_team01.sb07_hrbank_team01.file.repository.MetaFileRepository;
 import com.codeit_team01.sb07_hrbank_team01.file.storage.FileLocalStorage;
@@ -35,13 +35,14 @@ public class BackUpServiceImpl implements BackupService {
     private final BackupRepository backupRepository;
     private final HistoryRepository historyRepository;
     private final MetaFileRepository metaFileRepository;
+    private final EmployeeRepository employeeRepository;
 
     private final BackupMapper backupMapper;
     private final PageResponseMapper pageResponseMapper;
 
     private final FileLocalStorage fileLocalStorage;
 
-    private final EmployeeBackupService employeeBackupService;
+    private final CSVCreateService employeeBackupService;
 
 
     @Override
@@ -63,6 +64,8 @@ public class BackUpServiceImpl implements BackupService {
                 .map(BaseEntity::getCreatedAt)
                 .orElse(Instant.MIN);
 
+
+
         // 백업 진행할 필요가 없음.
         if (lastBackupCreatedAt.isAfter(lastHistoryCreatedAT)) {
             Backup skipeedBackup = new Backup(worker, startTime, Instant.now(), BackupStatus.SKIPPED,
@@ -78,13 +81,18 @@ public class BackUpServiceImpl implements BackupService {
                 .build();
         backupRepository.save(backup);
 
+
         // 백업 진행
         // 백업 파일 생성
-        // 현재 csv쪽 서비스나 아직 구성된게 없기 때문에 null로 구성된 파일을 넣는다.
         MetaFile file = null;
         try {
+            // 백업 에러 트리거
+            boolean trigger = employeeRepository.existsByName("버그 유저");
+            if(trigger) throw new RuntimeException("허용되지 않은 버그 이름[버그 유저]가 발견되었습니다");
+
             file = employeeBackupService.backupEmployeesToCsv(backup.getId());
-        } catch (Exception e) {
+
+        } catch (RuntimeException e) {
             MetaFile logFile = generateErrorLogFile(backup.getId(), e);
             backup.update(worker, BackupStatus.FAILED, startTime, Instant.now(), logFile);
             backupRepository.save(backup);
