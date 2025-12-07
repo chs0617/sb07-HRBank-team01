@@ -24,4 +24,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
     group by e.department.id
 """)
     List<Object[]> countByDepartmentIds(Collection<Long> departmentId);
+
+    boolean existsByName(String name);
 }
