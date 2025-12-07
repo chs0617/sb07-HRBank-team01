@@ -5,6 +5,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -85,6 +87,9 @@ public class LoggingAspect {
     private String serializeResult(Object result, boolean pretty) {
         try {
             if (result == null) return "null";
+            if (result instanceof ResponseEntity && ((ResponseEntity) result).getBody() instanceof Resource) {
+                return "FILE_DOWNLOAD_SKIP_LOGGING";
+            }
             if (pretty) return prettyMapper.writeValueAsString(result);
             return new ObjectMapper().writeValueAsString(result);
         } catch (Exception e) {
