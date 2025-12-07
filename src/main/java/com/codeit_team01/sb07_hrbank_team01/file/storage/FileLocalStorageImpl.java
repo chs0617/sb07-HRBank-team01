@@ -7,7 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -59,6 +59,7 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         }
     }
 
+    @Override
     public InputStream get(Long id) {
         Path path = resolvePath(id);
 
@@ -72,9 +73,14 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         }
     }
 
+    @Override
     public ResponseEntity<Resource> download(FileResponseDto fileResponseDto) {
-        InputStream fileInputStream = get(fileResponseDto.id());
-        InputStreamResource resource = new InputStreamResource(fileInputStream);
+        Path path = resolvePath(fileResponseDto.id());
+        if (!Files.exists(path)) {
+            throw new CustomException(ErrorCode.FILE_NOT_FOUND, fileResponseDto.id() + "번 파일이 존재하지 않습니다.");
+        }
+        Resource resource = new FileSystemResource(path);
+
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                 .filename(fileResponseDto.name(), StandardCharsets.UTF_8)
                 .build();
@@ -82,11 +88,11 @@ public class FileLocalStorageImpl implements FileLocalStorage {
         headers.setContentDisposition(contentDisposition);
         headers.setContentLength(fileResponseDto.size());
         headers.setContentType(MediaType.parseMediaType(fileResponseDto.type()));
-
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
     }
+
     @Override
     public Writer getWriter(Long id) throws IOException {
         Path path = resolvePath(id);
