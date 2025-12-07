@@ -42,7 +42,7 @@ CREATE TABLE employee_histories (
                                     memo            varchar(255),
                                     ip_address      varchar(255),
                                     created_at      timestamp       NOT NULL,
-                                    employee_id     bigint          NOT NULL
+                                    employee_no     bigint          NOT NULL
 );
 
 -- 백업 이력
@@ -75,10 +75,6 @@ ALTER TABLE employees
 ALTER TABLE employees
     ADD CONSTRAINT fk_employees_profile
         FOREIGN KEY (profile_id) REFERENCES files(id);
-
-ALTER TABLE employee_histories
-    ADD CONSTRAINT fk_histories_employee
-        FOREIGN KEY (employee_id) REFERENCES employees(id);
 
 ALTER TABLE backups
     ADD CONSTRAINT fk_backups_file
