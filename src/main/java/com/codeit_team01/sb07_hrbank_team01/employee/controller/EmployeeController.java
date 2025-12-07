@@ -30,7 +30,7 @@ public class EmployeeController {
             @Valid @RequestPart("employee") EmployeeCreateRequestDto employee,
             @RequestPart(value = "profile", required = false) MultipartFile profile) {
         FileCreateRequestDto profileDto = null;
-        if(profileDto != null) {
+        if(profile != null) {
             profileDto = FileCreateRequestDto.from(profile);
         }
         return employeeService.createEmployee(employee, profileDto);

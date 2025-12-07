@@ -1,4 +1,4 @@
-package com.codeit_team01.sb07_hrbank_team01.employee.service;
+package com.codeit_team01.sb07_hrbank_team01.backup.service;
 
 import com.codeit_team01.sb07_hrbank_team01.employee.entity.Employee;
 import com.codeit_team01.sb07_hrbank_team01.employee.repository.EmployeeRepository;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeBackupService {
+public class CSVCreateService {
 
   private final EmployeeRepository employeeRepository;
   private final FileLocalStorage fileLocalStorage;
@@ -74,12 +75,9 @@ public class EmployeeBackupService {
       // 5. 파일 크기 측정은 fileLocalStorage에 따라 다름 → Storage에서 별도 제공 시 보완
 
       fileSize = fileLocalStorage.size(metaFile.getId());
-
-
-    } catch (Exception e) {
-      throw new RuntimeException("CSV 백업 실패: " + e.getMessage(), e);
+    } catch (IOException e) {
+        throw new RuntimeException("CSV 백업 실패: " + e.getMessage(), e);
     }
-
     // 6. DB에 파일 정보 저장 (파일명은 Path에서 추출)
     metaFile.updateSize(fileSize);
 
