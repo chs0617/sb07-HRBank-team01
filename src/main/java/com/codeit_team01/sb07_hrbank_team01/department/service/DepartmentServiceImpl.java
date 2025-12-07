@@ -18,8 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -111,13 +114,23 @@ public class DepartmentServiceImpl implements DepartmentService {
                req.idAfter(),
                pageable
         );
-
-        // 콘텐츠 매핑
-        List<DepartmentResponseDto> contents = page.getContent().stream()
-                .map(d -> departmentResponseMapper.toDto(d,
-                        employeeRepository.countByDepartmentId(d.getId())
-                ))
-                .toList();
+        //부서넘버가있고
+        List<Department> departments = page.getContent();
+        //각넘버에 인원이 있으니
+        List<Long>departmentIds = departments.stream().map(Department::getId).toList();
+        //그넘버뭉텅이를 가지고와서
+        Map<Long, Long> departmentIdAndEmployeeCount = departmentIds.isEmpty()
+                ? Collections.emptyMap()
+                : employeeRepository.countByDepartmentIds(departmentIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],  // 부서id
+                        row -> (Long) row[1]   // 인원숫자
+                ));
+        List<DepartmentResponseDto> contents = departments.stream()
+                .map(d->{
+                   int employeeCount = Math.toIntExact(departmentIdAndEmployeeCount.getOrDefault(d.getId(),0L));
+                   return departmentResponseMapper.toDto(d,employeeCount);
+                }).toList();
 
         //  nextCursor / nextIdAfter 계산
         String nextCursor = null;
