@@ -146,10 +146,10 @@ public class HistoryServiceImpl implements HistoryService {
     private void addChangedEmployeeDetails(
             History history, HistoryEmployeeCopyDto before, Employee after
     ) {
+        addDetailIfChanged(history, "이름", before.name(), after.getName());
         addDetailIfChanged(history, "입사일",
                 before.hireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate(),
-                after.getHireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate().toString());
-        addDetailIfChanged(history, "이름", before.name(), after.getName());
+                after.getHireDate().atZone(ZoneId.of("Asia/Seoul")).toLocalDate());
         addDetailIfChanged(history, "직함", before.jobPosition(), after.getJobPosition());
         addDetailIfChanged(history, "부서명", before.department(), after.getDepartment().getName());
         addDetailIfChanged(history, "이메일", before.email(), after.getEmail());
